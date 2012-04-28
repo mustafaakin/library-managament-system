@@ -1,0 +1,44 @@
+!!! 5
+html
+	head
+		meta(http-equiv='content-type',content='text/html;charset=iso-8859-9')
+		script(src='/js/jquery-1.7.1.min.js', lang='text/javascript')
+		script(src='/js/bootstrap.js', lang='text/javascript')
+		script(src='/js/bootstrap-tooltip.js', lang='text/javascript')
+		script(src='/js/main.js', lang='text/javascript')
+		link(rel='stylesheet', href='/css/main.css')
+		link(rel='stylesheet', href='/css/bootstrap2.css')
+		title Library Management System
+	body
+		div(class='container')
+			div(class='row')
+				div(class='span8')
+					h1 Bilkent University Library Management System
+					p A Cool system which is created by us. You can;
+					ul
+						li View items
+						li Reserve items
+						li Reserve a study room
+						li See your holdings
+						li Comment on books
+				div(class='span4')
+					div.well
+						h2 Login To System
+						form(action='login', method='post')
+							fieldset
+								div(class="control-group")
+									label Email			
+									div(class="input")
+										input(type="text",name="email",placeholder="Your Email Address",tabindex="1",value="")		
+								div(class="control-group")
+									label Password			
+									div
+										input(type="password",name="password",placeholder="Your Password",tabindex="1",value="")		
+									button(class='btn btn-primary', type='submit') Login to System
+								div
+									a(href='#') Forgot password
+			hr 
+			div(class='row')
+				div(class='span8') Mustafa Akın, Didem Demirağ, Semih Şahin, &copy; 2012
+				div(class='span4') 
+					a(href="#", rel="tooltip",data-original-title="We are students") About us

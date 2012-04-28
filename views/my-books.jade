@@ -1,0 +1,40 @@
+table(class="table table-striped")
+	thead
+		tr
+			th # Book ID
+			th Book Name
+			th Borrow Date
+			th Return Date
+			th Exentsions
+			th
+	tbody
+		tr
+			td 1
+			td Signal Processing First
+			td 13/03/12
+			td 13/04/12
+			td 1 out of 5
+			td
+				a(class="btn",data-toggle="modal", href="#extend-book") Extend
+		tr
+			td 2
+			td Database
+			td 22/07/12
+			td 22/07/17
+			td 4 out of 5
+			td
+				a(class="btn",data-toggle="modal",data-book-id="2", href="#extend-book") Extend
+div(class="alert alert-warning")
+	h4(class="alert-heading") Your books are about to expire!
+	p Please return your book if you finished reading it.
+div(class="modal fade hide",id="extend-book")
+	div(class="modal-header")
+		a(class="close",data-dismiss="modal") ×
+		h3 Are you sure to extend your book's period?
+	div(class="modal-body")
+		p You want to extend book %b 'Signal Processing First'
+		p It has 1 more extension left. Be careful.
+	div(class="modal-footer")
+		a(href="#",class="btn") Cancel
+		a(href="#",class="btn btn-primary") Extend
+

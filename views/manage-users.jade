@@ -1,0 +1,32 @@
+form.form-horizontal
+    fieldset
+        legend Add a new Member
+        .control-group
+          label.control-label(for='input01') Name
+          .controls
+            input#input01.input.span2(type='text', placeholder="John Doe")
+        .control-group
+          label.control-label(for='input01') Email
+          .controls
+            input#input01.input.span2(type='text', placeholder="john@doe.com")
+        .control-group
+          label.control-label(for='input01') Password
+          .controls
+            input#input01.input.span2(type='text', placeholder="*********")
+        .control-group
+          label.control-label(for='input01') Date of Birth
+          .controls
+            input#input01.input.span2(type='text', placeholder="21/12/2012")
+        .control-group
+          label.control-label(for='select01') Membership Type
+          .controls
+            select#select01
+              option Admin
+              option Staff
+              option Member
+              option Guest            
+        .form-actions
+          button.btn.btn-primary(type='submit') 
+            i.icon-white.icon-plus
+            | Register New User
+

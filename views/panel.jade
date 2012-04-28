@@ -1,0 +1,51 @@
+!!! 5
+html
+	head
+		meta(http-equiv='content-type',content='text/html;charset=iso-8859-9')
+		script(src='/js/jquery-1.7.1.min.js')
+		script(src='/js/bootstrap.js')
+		script(src='/js/bootstrap-tooltip.js')
+		script(src='/js/main.js', lang='text/javascript')
+		link(rel='stylesheet', href='/css/main.css')
+		link(rel='stylesheet', href='/css/bootstrap2.css')
+		title Library Management System
+	body(data-page="panel")
+		div(class="navbar navbar-fixed-top")
+			div(class="navbar-inner")
+				div(class="container-fluid")
+					a(class="btn btn-navbar",data-toggle="collapse",data-target=".nav-collapse")
+						span(class="icon-bar")
+						span(class="icon-bar")
+						span(class="icon-bar")
+					a(class="brand", href="#") Library Management System
+					div(class="nav-collapse")
+						ul(class="nav",id="menu-bar")
+							li(class="divider-vertical")
+							- types = [];
+							- normal = [];
+							- staff = [];
+							- admin = [];
+							- normal.push({link: 'normal/home', icon: 'home', title:'Home'});
+							- normal.push({link: 'normal/my-books', icon: 'book', title:'My Items'});							
+							- normal.push({link: 'normal/reserve-room', icon: 'headphones', title:'Reserve a Room'});														
+							- admin.push({link: 'admin/manage-staff', icon:'user', title:'Manage Staff'});
+							- admin.push({link: 'admin/edit-constraints', icon:'cog', title:'Edit Constraints'});
+							- staff.push({link: 'staff/manage-users', icon:'user', title:'Add New User'});							
+							- staff.push({link: 'staff/checkout', icon:'book', title:'Checkout Items'});														
+							- types['normal'] = normal;
+							- types['staff'] = staff;
+							- types['admin'] = admin;
+							- each item in types[type]
+								li 
+									a(href="##{item.link}", class="menu-button") 
+										i(class="icon-white icon-#{item.icon}")
+										|  #{item.title}
+							li
+								a(href="/logout")
+									i(class="icon-white icon-eject")
+									|  Logout
+					form(class="navbar-search pull-right",action="")
+						i(class="icon-white icon-search")
+						span &nbsp;
+						input(type="text",class="search-query span4",placeholder="Search An Item",style="background-color:#FFF")
+		div(class="container",id="panel-content")

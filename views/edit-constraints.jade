@@ -1,0 +1,33 @@
+form.form-horizontal
+    fieldset
+        legend Edit System Constraints
+        hr
+        h5 Maximum items that a user can take.
+        .control-group
+          label.control-label(for='input01') Guest
+          .controls
+            input#input03.input.span1(type='text', placeholder="0")
+        .control-group
+          label.control-label(for='input01') Regular User
+          .controls
+            input#input03.input.span1(type='text', placeholder="5")
+        .control-group
+          label.control-label(for='input01') Privilleged User
+          .controls
+            input#input03.input.span1(type='text', placeholder="10")            
+        hr
+        h5 Reserving an item limit.
+        .control-group
+          label.control-label(for='input01') Guest
+          .controls
+            input#input03.input.span1(type='text', placeholder="2")
+        .control-group
+          label.control-label(for='input01') Regular User
+          .controls
+            input#input03.input.span1(type='text', placeholder="3")
+        .control-group
+          label.control-label(for='input01') Privilleged User
+          .controls
+            input#input03.input.span1(type='text', placeholder="3")                        
+        .form-actions
+          button.btn.btn-primary(type='submit') Update Constraints

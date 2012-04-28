@@ -1,0 +1,78 @@
+div.well
+	h3 Enter User ID or Name 
+		input(type="text") 
+		| &nbsp;
+		a(href="#", class="btn btn-primary") Search
+hr
+
+div.well
+	div.row-fluid
+		div.span6
+			h1 Check-in A New Item
+			strong Enter Item ID or Title
+				input(type="text") 
+				| &nbsp;
+				a(href="#", class="btn btn-primary",data-toggle="modal", href="#book-search-results") Search
+		div.span6
+			h1 Mustafa Akin
+			ul
+				li Member since 2011
+				li Currently has 5 books in reserve
+				li Currently has 3 books on him
+				li Birthday 12/10/1991
+			a.btn.btn-warning Extend Membership
+hr
+
+h3 The Items that are on user
+table(class="table table-striped")
+	tr
+		th Item ID
+		th Title
+		th
+	tr
+		td 1
+		td Signal Processing First
+		td 
+			a(class="btn",data-toggle="modal", href="#extend") Extend
+			a(class="btn",data-toggle="modal", href="#check-out") Check-out
+	tr
+		td 2
+		td Plato
+		td 
+			a(class="btn",data-toggle="modal", href="#extend") Extend
+			a(class="btn",data-toggle="modal", href="#check-out") Check-out
+	tr
+		td 3
+		td Star Wars Episode III: Revenge of the Sith
+		td 
+			a(class="btn",data-toggle="modal", href="#extend") Extend
+			a(class="btn",data-toggle="modal", href="#check-out") Check-out		
+			
+div(class="modal fade hide",id="book-search-results")
+	div(class="modal-header")
+		a(class="close",data-dismiss="modal") ×
+		h3 Search Results
+	div(class="modal-body")
+		strong Your query returned these items:
+		ul.unstyled
+			li
+				a.btn.btn-primary Check-in
+				| Star Wars III: Episode 3, Item ID #291238		
+		ul.unstyled
+			li
+				a.btn.btn-primary Check-in
+				| Star Wars II: Episode 2, Item ID #291237		
+		ul.unstyled
+			li
+				a.btn.btn-primary Check-in
+				| Star Wars I: Episode 1, Item ID #291236
+div.modal.fade.hide(id="check-out")
+	div.modal-header
+			a.close(data-dismiss="modal") ×
+			h3 Check Out
+		div.modal-body
+			p Checking out this item requires 50 TL payment.
+			h3 Accept only if the payment is recieved.
+		div.modal-footer
+			a(href="#",class="btn") Close
+			a(href="#",class="btn btn-primary") Process Payment	

@@ -1,0 +1,24 @@
+form.form-horizontal
+    fieldset
+        legend Reserve a Room
+        .control-group
+          label.control-label(for='input01') Date
+          .controls
+            input#input01.input.span2(type='date', placeholder="21/12/2012")
+            input#input02.input.span1(type='date', placeholder="15:30")
+            | -
+            input#input03.input.span1(type='date', placeholder="17:30")            
+        .control-group
+          label.control-label(for='select01') Choose a Room Type
+          .controls
+            select#select01
+              option Movie Room
+              option Study Room
+        .control-group
+          label.control-label(for='optionsCheckbox') Agreement
+          .controls
+            label.checkbox
+              input#optionsCheckbox(type='checkbox', value='option1')
+              | I acknowledge that I will use room for it's purpose, nothing else.
+        .form-actions
+          button.btn.btn-primary(type='submit') Reserve Room
