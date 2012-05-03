@@ -30,8 +30,9 @@ html
 							- normal.push({link: 'normal/reserve-room', icon: 'headphones', title:'Reserve a Room'});														
 							- admin.push({link: 'admin/manage-staff', icon:'user', title:'Manage Staff'});
 							- admin.push({link: 'admin/edit-constraints', icon:'cog', title:'Edit Constraints'});
+							- staff.push({link: 'staff/checkout', icon:'book', title:'Edit User Holdings'});														
+							- staff.push({link: 'staff/addItem', icon:'book', title:'Add New Item'});																					
 							- staff.push({link: 'staff/manage-users', icon:'user', title:'Add New User'});							
-							- staff.push({link: 'staff/checkout', icon:'book', title:'Checkout Items'});														
 							- types['normal'] = normal;
 							- types['staff'] = staff;
 							- types['admin'] = admin;
@@ -44,8 +45,8 @@ html
 								a(href="/logout")
 									i(class="icon-white icon-eject")
 									|  Logout
-					form(class="navbar-search pull-right",action="")
+					form(class="navbar-search pull-right",id="searchForm")
 						i(class="icon-white icon-search")
 						span &nbsp;
-						input(type="text",class="search-query span4",placeholder="Search An Item",style="background-color:#FFF")
+						input(type="text",id="searchText",class="search-query span4",placeholder="Search An Item",style="background-color:#FFF")
 		div(class="container",id="panel-content")

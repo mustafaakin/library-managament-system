@@ -1,0 +1,11 @@
+div.modal-header
+		a.close(data-dismiss="modal") ×
+		h3 Item Details
+	div.modal-body
+		table(class="table table-bordered")					
+			- each item,key in details 				
+				tr			
+					td #{key}
+					td #{item}
+	div.modal-footer
+		a(href="#",class="btn",data-dismiss="modal") Close

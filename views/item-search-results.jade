@@ -1,113 +1,13 @@
-h3 Book Results
+h2 Item Search Results
 table(class="table table-striped")
 	tr
 		th Item ID
 		th Title
-		th ISBN
-		th Author
-		th Publisher
-		th Publication Year
 		th Category
-		th Rating
-		th
-	tr
-		td 12356
-		td Face to face = bir gün
-		td 9789752895317
-		td Kulin, Ayşe
-		td Everest Publications
-		td 2009
-		td Novel
-		td 4.64 out of 5
-		td 
-			a(class="btn",data-toggle="modal", href="#reserve-book") Reserve
-			a(class="btn",data-toggle="modal", href="#comment") Comment
-	tr
-		td 12352
-		td Face to face = bir gün
-		td 9789752895315
-		td Kulin, Ayşe
-		td Everest Publications
-		td 2011
-		td Novel
-		td 0 out of 5	
-		td 
-			a(class="btn",data-toggle="modal", href="#reserve-book") Reserve
-			a(class="btn",data-toggle="modal", href="#comment") Comment
-	tr
-		td 552
-		td Face to face = bir gün
-		td 1789752895315
-		td Kulin, Ayşe
-		td Everest Publications
-		td 1921
-		td Novel	
-		td 5 out of 5
-		td 
-			a(class="btn",data-toggle="modal", href="#reserve-book") Reserve			
-			a(class="btn",data-toggle="modal", href="#comment") Comment
-hr
-h3 Audio Results
-table(class="table table-striped")
-	tr
-		th Item ID
-		th Title
-		th Year
-		th Artist
-		th Rating
-		th
-	tr
-		td 12356
-		td Belki Bir gün Özlersin Aşkı
-		td 2003
-		td Emre Aydın	
-		td 2.12 out of 5
-		td 
-			a(class="btn",data-toggle="modal", href="#reserve-book") Reserve
-			a(class="btn",data-toggle="modal", href="#comment") Comment
-h3 Video Results
-p No results avaialable.
-hr
-h3 E-Material Results
-table(class="table table-striped")
-	tr
-		th Item ID
-		th Title
-		th Rating
-		th
-	tr
-		td 12356
-		td Belki Bir gün Özlersin Aşkı.mp3
-		td 0.11 out of 5
-		td 
-			a(class="btn",data-toggle="modal", href="#reserve-book") Download
-			a(class="btn",data-toggle="modal", href="#comment") Comment
-div(class="modal fade hide",id="reserve-book")
-	div(class="modal-header")
-		a(class="close",data-dismiss="modal") ×
-		h3 Do you want to reserve this book?
-	div(class="modal-body")
-		p You are reserving 
-			b  "Face to Face" 
-			| by 
-			b  "Ayşe Kulin" 
-			|  You can reserve it until 15 April 2012.
-	div(class="modal-footer")
-		a(href="#",class="btn") Cancel
-		a(href="#",class="btn btn-primary") Reserve
-div(class="modal fade hide",id="comment")
-	div(class="modal-header")
-		a(class="close",data-dismiss="modal") ×
-		h3 Comments
-	div(class="modal-body")
-		p Comments are from our library members.
-		ul
-			li I was bored reading it, I just read it because I had to but I have lost my precious time.
-				b Mustafa
-			li Are you kidding? That was the best book I have ever read, really! The story, the presentation, all of it was good!
-				b Didem
-		h2 What do you think?
-		textarea(class="input-xlarge",id="textarea",rows="3")
-	div(class="modal-footer")
-		a(href="#",class="btn") Close
-		a(href="#",class="btn btn-primary") Submit Comment
+	- each item in items 
+		tr
+			td #{item.ItemID}
+			td 
+				a(href="#",class="item-search-result-list-element",data-id="#{item.ItemID}",data-category='#{item.category}') #{item.Title}
+			td #{item.category}			
+div.modal.fade.hide(id="item-details-modal")

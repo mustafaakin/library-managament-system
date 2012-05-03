@@ -1,0 +1,21 @@
+- if ( details)
+	div.modal-header
+			a.close(data-dismiss="modal") ×
+			h2 Are you sure to check-in this item?
+		div.modal-body
+			table(class="table table-bordered")					
+				- each item,key in details 
+					tr			
+						td #{key}
+						td #{item}
+		div.modal-footer
+			a(href="#",class="btn btn-primary",id="checkInBtn",data-itemID="#{details.ItemID}",data-userID="") Check-in
+			a(href="#",class="btn",data-dismiss="modal") Cancel
+- else
+	div.modal-header
+		a.close(data-dismiss="modal") ×
+		h1 Sorry!
+	div.modal-body
+		h4 There is no item! Check the item ID please.
+	div.modal-footer
+		a(href="#",class="btn",data-dismiss="modal") Close

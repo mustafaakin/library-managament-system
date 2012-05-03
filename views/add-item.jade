@@ -1,0 +1,158 @@
+h1 Choose Item Type To Add
+hr
+a.btn.btn-primary.btn-large(data-toggle="modal",href="#add-book")
+	i.icon.icon-white.icon-book
+	|  Add Book
+a.btn.btn-primary.btn-large(data-toggle="modal",href="#add-video")
+	i.icon.icon-white.icon-camera
+	|  Add Video
+a.btn.btn-primary.btn-large(data-toggle="modal",href="#add-audio")
+	i.icon.icon-white.icon-headphones
+	|  Add Audio
+a.btn.btn-primary.btn-large(data-toggle="modal",href="#add-ematerial") 
+	i.icon.icon-white.icon-globe
+	|  Add eMaterial
+
+div(class="modal fade hide",id="add-book")
+	div.modal-header
+		a.close(data-dismiss="modal") ×
+		h3 Add a New Book To Library
+	div.modal-body
+		form(class="form-horizontal",id="add-book-form")
+				fieldset
+					div(class="control-group")
+						label(class="control-label") Title
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="title")
+					div(class="control-group")
+						label(class="control-label") Location
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="location")
+					div(class="control-group")
+						label(class="control-label") Is it Borrwable?
+						div(class="controls")
+							input(type="checkbox",class="input-xlarge",name="isBorrowable",value="1")
+					div(class="control-group")
+						label(class="control-label") ISBN
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="ISBN")
+					div(class="control-group")
+						label(class="control-label") Author
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="author")		
+					div(class="control-group")
+						label(class="control-label") Publisher
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="publisher")														
+					div(class="control-group")
+						label(class="control-label") Publication Year
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="year")		
+					div(class="control-group")
+						label(class="control-label") Category
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="category")		
+	div.modal-footer
+		div.alert.alert-success.hide#add-item-status Book is succesfully added to the database.
+		a(href="#",class="btn") Cancel
+		a(href="#",class="btn btn-primary",id="add-book-form-addBtn") Add
+
+div(class="modal fade hide",id="add-video")
+	div.modal-header
+		a.close(data-dismiss="modal") ×
+		h3 Add a New Video To Library
+	div.modal-body
+		form(class="form-horizontal",id="add-video-form")
+				fieldset
+					div(class="control-group")
+						label(class="control-label") Title
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="title")
+					div(class="control-group")
+						label(class="control-label") Location
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="location")
+					div(class="control-group")
+						label(class="control-label") Is it Borrwable?
+						div(class="controls")
+							input(type="checkbox",class="input-xlarge",name="isBorrowable",value="1")
+					div(class="control-group")
+						label(class="control-label") Director
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="director")
+					div(class="control-group")
+						label(class="control-label") Production Year
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="year")
+					div(class="control-group")
+						label(class="control-label") Producer
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="producer")
+					div(class="control-group")
+						label(class="control-label") Duration
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="duration")										
+	div.modal-footer
+		div.alert.alert-info.hide#add-video-status Video is succesfully added to the database.
+		a(href="#",class="btn") Cancel
+		a(href="#",class="btn btn-primary",id="add-video-form-addBtn") Add
+
+div(class="modal fade hide",id="add-audio")
+	div.modal-header
+		a.close(data-dismiss="modal") ×
+		h3 Add a New Audio To Library
+	div.modal-body
+		form(class="form-horizontal",id="add-audio-form")
+				fieldset
+					div(class="control-group")
+						label(class="control-label") Title
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="title")
+					div(class="control-group")
+						label(class="control-label") Location
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="location")
+					div(class="control-group")
+						label(class="control-label") Is it Borrwable?
+						div(class="controls")
+							input(type="checkbox",class="input-xlarge",name="isBorrowable",value="1")
+					div(class="control-group")
+						label(class="control-label") Production Year
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="year")
+					div(class="control-group")
+						label(class="control-label") Artist
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="artist")
+	div.modal-footer
+		div.alert.alert-info.hide#add-audio-status Audio is succesfully added to the database.
+		a(href="#",class="btn") Cancel
+		a(href="#",class="btn btn-primary",id="add-audio-form-addBtn") Add
+
+div(class="modal fade hide",id="add-ematerial")
+	div.modal-header
+		a.close(data-dismiss="modal") ×
+		h3 Add a New Audio To Library
+	div.modal-body
+		form(class="form-horizontal",id="add-ematerial-form")
+				fieldset
+					div(class="control-group")
+						label(class="control-label") Title
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="title")
+					div(class="control-group")
+						label(class="control-label") Location
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="location")
+					div(class="control-group")
+						label(class="control-label") Is it Borrwable?
+						div(class="controls")
+							input(type="checkbox",class="input-xlarge",name="isBorrowable",value="1")
+					div(class="control-group")
+						label(class="control-label") URL
+						div(class="controls")
+							input(type="text",class="input-xlarge",name="URL")
+	div.modal-footer
+		div.alert.alert-info.hide#add-ematerial-status e-Material is succesfully added to the database.
+		a(href="#",class="btn") Cancel
+		a(href="#",class="btn btn-primary",id="add-ematerial-form-addBtn") Add
