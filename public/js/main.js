@@ -70,7 +70,22 @@ $(document).ready(function(){
 		var itemID = $(this).data("itemid");
 		var userID = currentUser;
 		$.get("/staff/checkin/" + userID + "/" + itemID, function(data){
-			location.reload();
+			var status = "alert-error";
+			var cssType = "";
+			if ( data == "ok"){
+				status = "Item checked in to user.";
+				cssType = "alert-success";
+			} else if ( data == "user-limit"){
+				status = "User has exceeded maximum checkouts.";
+			} else if ( data == "not-borrowable"){
+				status = "Requested item is not borrowable."
+			} else {
+				status = "unknown error";
+			}
+			$("#check-in-status").addClass(cssType).text(status).show(500);
+			setTimeout(function(){
+				$("#check-in-status").hide(500);
+			},5000);
 		});
 		return false;
 	});
@@ -108,18 +123,6 @@ $(document).ready(function(){
 		return false;
 	});
 
-	$("#add-audio-form-addBtn").live("click", function(){
-		var formValues = $("#add-audio-form").serialize();
-		$.post("/staff/add/audio/", formValues, function(data){
-			$("#add-audio-status").show(500);
-			setTimeout(function(){
-				$("#add-audio-status").hide(500);
-			}, 4000);
-		});
-		return false;
-	});
-
-
 	$("#add-ematerial-form-addBtn").live("click", function(){
 		var formValues = $("#add-ematerial-form").serialize();
 		$.post("/staff/add/ematerial/", formValues, function(data){
@@ -127,6 +130,17 @@ $(document).ready(function(){
 			setTimeout(function(){
 				$("#add-ematerial-status").hide(500);
 			}, 4000);
+		});
+		return false;
+	});
+
+	$("#add-user-form-submit-btn").live("click", function(){
+		var formValues = $("#add-user-form").serialize();
+		$.post('/staff/register/', formValues, function(data){
+			$("#add-user-status").show(500);
+			setTimeout(function(){
+				$("#add-user-status").hide(500);
+			},4000);
 		});
 		return false;
 	});

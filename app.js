@@ -1,5 +1,6 @@
 var express = require('express');
 var models = require('./models.js');
+var moment = require('moment');
 var os = require("os");
 
 var User = models.User;
@@ -31,6 +32,7 @@ app.post('/login', function(req,res){
 	User.check_login(user,password, function(result){	
 		if ( result){
 			var type = result.name;
+			req.session.UserID = result.UserID;
 			if ( ['privileged', 'normal', 'guest'].indexOf(type) != -1){
 				res.redirect('/panel/normal');
 			} else {
@@ -42,11 +44,15 @@ app.post('/login', function(req,res){
 	});
 });
 
+app.get('/wrong-login', function(req,res){
+	res.render("wrong-login");
+});
+
 app.get('/panel/:type/:menu?', function(req,res,next){
 	if ( req.params.menu){
 		next();
 	} else {
-		if ( ['admin', 'staff', 'normal'].indexOf(req.params.type) != -1){		
+		if ( ['admin', 'staff', 'normal'].indexOf(req.params.type) != -1){					
 			res.render("panel", {type:req.params.type});
 		} else {
 			res.send(404);
@@ -56,7 +62,20 @@ app.get('/panel/:type/:menu?', function(req,res,next){
 
 // Normal User Menus
 app.get('/panel/normal/home', function(req,res){
-	res.render("personal-details");
+	User.statistics(req.session.UserID, function(stat){
+		res.render("personal-details", {
+			id: req.session.UserID,
+			name: stat.membership[0].Name,
+			birth: moment().diff(moment(stat.membership[0].DateOfBirth),"hours"),
+			start: moment(stat.membership[0].StartDate).format("DD MMMM YYYY"),
+			expire: moment(stat.membership[0].ExpireDate).diff(moment(),"days") + " days later",
+			reserves: stat.reserves[0].count,
+			booksOn: stat.current_books[0].count,
+			reserved: stat.reserves[0].count,
+			media: stat.rooms_so_far[0].count,
+			borrowed: stat.books_so_far[0].count
+		});
+	});
 });
 
 app.get('/panel/normal/my-books', function(req,res){
@@ -81,7 +100,9 @@ app.get('/panel/admin/edit-constraints', function(req,res){
 
 // Staff Menus
 app.get('/panel/staff/manage-users', function(req,res){
-	res.render('manage-users');
+	User.membership_dues(function(results){
+		res.render('manage-users', {dues:results});
+	});
 });
 
 app.get('/panel/staff/checkout/:userID?', function(req,res){
@@ -90,14 +111,21 @@ app.get('/panel/staff/checkout/:userID?', function(req,res){
 	} else {
 		User.user_details(req.params.userID, function(data){ 
 			if ( data){
-				res.render("user-holdings", {	
+				User.user_items(req.params.userID, function(items){
+					console.log(items);
+					res.render("user-holdings", {	
 						userID : req.params.userID,
 					 	name: data.name,
 						birth: data.DateOfBirth,
-						found: true
-					});		
+						found: true,
+						items: items
+					});			
+				})
 			} else {
-				res.render("user-holdings", {userID: req.params.userID, found: false})
+				res.render("user-holdings", {
+					userID: req.params.userID, 
+					found: false
+				});
 			}
 		});
 	}
@@ -144,7 +172,7 @@ app.post("/admin/staff/add", function(req,res) {
 
 app.get("/staff/checkin/:user/:item", function(req,res){
 	Item.check_in(req.params.user, req.params.item, function(data){
-		res.send(JSON.stringify(data));
+		res.send(data);
 	});
 });
 
@@ -152,12 +180,13 @@ app.post("/staff/add/book", function(req,res){
 	var title = req.param('title', null);
 	var location = req.param('location', null);
 	var isBorrowable = req.param('isBorrwable', null);
+	var count = req.param("count",null);
 	var ISBN = req.param('ISBN', null);
 	var author = req.param('author', null);
 	var publisher = req.param('publisher', null);
 	var year = req.param('year', null);
 	var category = req.param('category', null);
-	Item.addBook(title, location, isBorrowable, ISBN, author, publisher, year, category, function(result){
+	Item.addBook(title, location, isBorrowable, count, ISBN, author, publisher, year, category, function(result){
 		res.send(result);
 	})
 });
@@ -171,7 +200,8 @@ app.post("/staff/add/video", function(req,res){
 	var year = req.param('year', null);
 	var producer = req.param('producer', null);
 	var duration = req.param('duration', null);
-	Item.addVideo(title, location, isBorrowable, director, year, producer, duration, function(result){
+	var count = req.param("count",null);
+	Item.addVideo(title, location, isBorrowable, count, director, year, producer, duration, function(result){
 		res.send(result);
 	})
 });
@@ -182,7 +212,8 @@ app.post("/staff/add/audio", function(req,res){
 	var isBorrowable = req.param('isBorrwable', null);
 	var year = req.param('year', null);
 	var artist = req.param('artist', null);
-	Item.addAudio(title, location, isBorrowable, year, artist, function(result){
+	var count = req.param("count",null);
+	Item.addAudio(title, location, isBorrowable, count, year, artist, function(result){
 		res.send(result);
 	})
 });
@@ -197,5 +228,15 @@ app.post("/staff/add/ematerial", function(req,res){
 	})
 });
 
+app.post("/staff/register", function(req,res){	
+	var name = req.param('name', null);
+	var email = req.param('email', null);
+	var password = req.param('password', null);
+	var birth = req.param('birth', null);
+	var type = req.param('type', null);
+	User.register(name,email,password,birth,type, function(result){
+		res.send(result);
+	})
+});
 
 app.listen(3000);

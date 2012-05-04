@@ -1,27 +1,30 @@
-h1 Welcome, Mustafa!
+h1 Welcome, #{name}
 div We have some interesting details about you.
 table(class="table table-striped")
 	tr
 		th Membership ID
-		td 20900755
+		td #{id}
 	tr
 		th Member Since
-		td 22/07/2010
+		td #{start}
 	tr
-		th Membership Until
-		td 21/12/2012				
+		th Membership Expiration
+		td #{expire}
+	tr
+		th Your age in days:
+		td #{birth}				
 	tr
 		th Books Currently On You
-		td 5
+		td #{booksOn}
 	tr
 		th Books Reserved So Far
-		td 50
+		td #{reserved}
 	tr
 		th Media Rooms Reserved So Far
-		td 87
+		td #{media}
 	tr
 		th Books Borrowed So Far
-		td 164
+		td #{borrowed}
 div(class="row")
 	div(class="span6")
 		div(class="alert alert-error")

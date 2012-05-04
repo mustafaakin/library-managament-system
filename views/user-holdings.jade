@@ -34,25 +34,18 @@ hr
 		tr
 			th Item ID
 			th Title
+			th Borrowed On
 			th
-		tr
-			td 1
-			td Signal Processing First
-			td 
-				a(class="btn",data-toggle="modal", href="#extend") Extend
-				a(class="btn",data-toggle="modal", href="#check-out") Check-out
-		tr
-			td 2
-			td Plato
-			td 
-				a(class="btn",data-toggle="modal", href="#extend") Extend
-				a(class="btn",data-toggle="modal", href="#check-out") Check-out
-		tr
-			td 3
-			td Star Wars Episode III: Revenge of the Sith
-			td 
-				a(class="btn",data-toggle="modal", href="#extend") Extend
-				a(class="btn",data-toggle="modal", href="#check-out") Check-out				
+		- each item in items
+			- var t = (item.BorrowDate.toString()).split(" ");
+			- var d = t[0] + " " + t[1] + " " + t[2] + " " + t[3];
+			tr
+				td #{item.ItemID}
+				td #{item.Title}
+				td #{d}
+				td 
+					a(class="btn",data-toggle="modal", href="#extend") Extend
+					a(class="btn",data-toggle="modal", href="#check-out") Check-out
 	div.modal.fade.hide(id="book-search-results")
 	div.modal.fade.hide(id="check-out")
 		div.modal-header
