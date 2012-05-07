@@ -22,8 +22,7 @@ function getConstraint(name, userType, callback){
 
 module.exports.User = {
 	check_login : function(user, pass, callback){
-		pool.query("SELECT User.UserID, UserTable.name FROM User, UserTable, MembershipHistory WHERE User.email = ? AND User.password = MD5(?) " + 
-			" AND UserTable.type = User.type AND User.UserID = MembershipHistory.UserID AND (ExpireDate is null OR ExpireDate >= CurDate()) ORDER BY ExpireDate DESC LIMIT 0,1", [user, pass], function(err,rows,fields){
+		pool.query("SELECT UserID, UserType FROM LoginCheck WHERE email = ? AND Password = MD5(?) AND IsExpired = 1", [user, pass], function(err,rows,fields){
 			if ( err)
 				throw err;
 			if ( rows && rows[0]){
@@ -33,14 +32,30 @@ module.exports.User = {
 			}
 		});
 	},
+	extend_item: function(user, item, callback){
+		pool.query("SELECT * FROM BorrowCheck WHERE UserID = ? AND ItemID = ?", [user, item], function(err,rows,fields){
+			if ( rows[0] && (rows[0].IsPassed == 1 || rows[0].MaxExtensionBreached == 1)){
+				callback("no-more-extensions");
+			} else {
+				pool.query("UPDATE Borrow SET ExtensionCount = ExtensionCount + 1 WHERE UserID = ? AND ItemID = ?", [user,item], function(err,rows,fields){
+					callback("ok");
+				});
+			}
+		});
+	},
+	get_all_constraints : function(callback){
+		pool.query("SELECT * FROM ConstraintTable", function(err,rows,fields){
+			callback(rows);
+		});
+	},
 	add_staff : function(name,password, birthday, callback){
 		pool.query("INSERT INTO User(name, password, DateOfBirth, type) VALUES(?,?,?,?)", 
 		  [name,password, birthday,2], function(err,rows, fields){
 			callback(rows);
 		});
 	},
-	get_user_list : function(type,callback){
-		pool.query("SELECT * FROM User WHERE type = ?", [type], function(err,rows,fields){
+	getStaffStatistics : function(callback){
+		pool.query("SELECT * FROM StaffStatistics", function(err,rows,fields){
 			callback(rows);
 		});
 	},
@@ -55,7 +70,7 @@ module.exports.User = {
 		});
 	}, 
 	register: function(name,email,password,birth,type,callback){
-		getConstraint("MembershipDue", type, function(due){
+		getConstraint("Membrows.insertIdershipDue", type, function(due){
 			// date_add(curdate(),INTERVAL 35 Day)
 			pool.query("INSERT INTO User(Password,Name, Type,DateOfBirth,email) VALUES(MD5(?),?,?,?,?)",
 			 [password, name, type, birth, email], function(err,rows,fields){
@@ -86,7 +101,7 @@ module.exports.User = {
 				});
 			},
 			current_books: function(callback) {
-				pool.query("SELECT COUNT(*) AS count FROM Borrow WHERE UserID = ? AND charge IS NULL", [id], function(err,rows,fields){
+				pool.query("SELECT COUNT(*) AS count FROM Borrow WHERE UserID = ?", [id], function(err,rows,fields){
 					callback(null, rows);
 				});
 			}, 
@@ -109,11 +124,27 @@ module.exports.User = {
 			globalCallback(results);
 		});
 	},
-	user_items: function(userID, callback){
-		pool.query("SELECT Item.ItemID, Title, BorrowDate FROM Item, Borrow WHERE Item.ItemID = Borrow.ItemID AND UserID = ? AND charge IS NULL ORDER BY BorrowDate",
-		  [userID], function(err,rows,fields){
+	user_items: function(user, callback){
+		pool.query("SELECT * FROM UserHoldings WHERE UserID = ? ORDER BY BorrowDate",
+		  [user], function(err,rows,fields){
 		  	callback(rows);
 		});
+	}, 
+	borrow_charge: function(user, item, callback){
+		pool.query("SELECT Price FROM LateCheckouts WHERE UserID = ? AND ItemID = ?", [user, item], function(err,rows,fields){
+			callback( rows[0].Price);
+		});
+	},
+	checkout: function(user,item, staff, callback){
+		pool.query("SELECT Price FROM LateCheckouts WHERE UserID = ? AND ItemID = ?", [user, item], function(err,rows,fields){
+			var price = rows[0].Price;
+			pool.query("INSERT INTO Returns(UserID, ItemID, StaffID, date, amount) VALUES(?,?,?, CURRENT_TIMESTAMP(),?)",
+			  [user,item,staff,price], function(err,rows,fields){
+				pool.query("DELETE FROM Borrow WHERE UserID = ? AND ItemID = ?", [user,item], function(err,rows,fields){
+					callback("ok");
+				});
+			});
+		});		
 	}
 };
 
@@ -146,7 +177,7 @@ module.exports.Item = {
 	},
 	check_in: function(userID, itemID, globalCallback){
 		async.parallel({
-			checkoutCheck: function(callback){
+			checkinCheck: function(callback){
 				pool.query("SELECT Value >= COUNT(ItemID) AS CanBorrow FROM UserConstraints, Borrow WHERE name = 'MaxBorrowCount' " +
 					" AND Borrow.UserID = ? AND UserConstraints.UserID = ? GROUP BY Borrow.UserID", [userID, userID], function(err,rows,fields){
 				  	if ( err)
@@ -159,9 +190,9 @@ module.exports.Item = {
 				});
 			},
 			isBorrowable: function(callback){
-				pool.query("SELECT (SELECT count * Borrowable FROM Item WHERE ItemID = ?) AS total," +
-				  "(SELECT COUNT(ItemID) From Borrow WHERE ItemID = ? AND charge IS NULL) AS borrowed", [itemID, itemID], function(err,rows,fields){
-				  	if ( rows[0] && rows[0].total > rows[0].borrowed){
+				pool.query("SELECT ((SELECT count * Borrowable FROM Item WHERE ItemID = ?) > (SELECT COUNT(ItemID) From Borrow WHERE ItemID = ?)) AS IsBorrowable", 
+					[itemID, itemID], function(err,rows,fields){
+				  	if ( rows[0].IsBorrowable == 1){
 				  		callback(null,true);
 				  	} else {
 				  		callback("not-borrowable");

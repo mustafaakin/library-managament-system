@@ -12,14 +12,14 @@ table(class="table table-striped")
 		th Amount of Charged Money
 	- each User in users 
 		tr 
-			td #{User.UserID}
-			td #{User.Name}
+			td #{User.StaffID}
+			td #{User.name}
 			- var t = ((User.DateOfBirth.toString())).split(" ");
 			- var b = t.splice(0,4);
 			- b = b[1] + " " + b[2] + " " + b[3];
 			td #{b}
-			td 
-			td
+			td #{User.count}
+			td #{User.money} TL
 div.modal.fade.hide(id="new-staff-modal")
 	div.modal-header
 			a.close(data-dismiss="modal") ×

@@ -31,12 +31,14 @@ app.post('/login', function(req,res){
 	var password = req.param('password',null);
 	User.check_login(user,password, function(result){	
 		if ( result){
-			var type = result.name;
+			var type = result.UserType;
 			req.session.UserID = result.UserID;
 			if ( ['privileged', 'normal', 'guest'].indexOf(type) != -1){
 				res.redirect('/panel/normal');
+				req.session.UserType = "normal";			
 			} else {
 				res.redirect("/panel/" + type);				
+				req.session.UserType = type;			
 			}
 		} else {
 			res.redirect("/wrong-login");
@@ -48,8 +50,10 @@ app.get('/wrong-login', function(req,res){
 	res.render("wrong-login");
 });
 
-app.get('/panel/:type/:menu?', function(req,res,next){
-	if ( req.params.menu){
+app.get('/panel/:type/:menu?/:opts1?/:opts2?', function(req,res,next){
+	if ( req.params.type != req.session.UserType){
+		res.send(401);
+	} else if ( req.params.menu){
 		next();
 	} else {
 		if ( ['admin', 'staff', 'normal'].indexOf(req.params.type) != -1){					
@@ -89,13 +93,15 @@ app.get('/panel/normal/reserve-room', function(req,res){
 
 // Admin Menus
 app.get('/panel/admin/manage-staff', function(req,res){
-	User.get_user_list(2, function(result){
+	User.getStaffStatistics(function(result){
 		res.render("manage-staff", {users:result});
 	});
 });
 
 app.get('/panel/admin/edit-constraints', function(req,res){
-	res.render("edit-constraints");
+	User.get_all_constraints(function(rows){
+		res.render("edit-constraints", {constraints:rows});
+	});
 });
 
 // Staff Menus
@@ -105,14 +111,13 @@ app.get('/panel/staff/manage-users', function(req,res){
 	});
 });
 
-app.get('/panel/staff/checkout/:userID?', function(req,res){
+app.get('/panel/staff/checkin/:userID?', function(req,res){
 	if ( !req.params.userID){
 		res.render("user-holdings", {userID : null, found: true});
 	} else {
 		User.user_details(req.params.userID, function(data){ 
 			if ( data){
 				User.user_items(req.params.userID, function(items){
-					console.log(items);
 					res.render("user-holdings", {	
 						userID : req.params.userID,
 					 	name: data.name,
@@ -161,7 +166,7 @@ app.get('/item/:id', function(req,res){
   	});
 });
 
-app.post("/admin/staff/add", function(req,res) {
+app.post("/panel/admin/staff/add", function(req,res) {
 	var name = req.param('name',null);
 	var password = req.param('password',null);
 	var birthday = req.param('birthday',null);
@@ -170,13 +175,13 @@ app.post("/admin/staff/add", function(req,res) {
 	})
 });
 
-app.get("/staff/checkin/:user/:item", function(req,res){
+app.get("/panel/staff/checkin/:user/:item", function(req,res){
 	Item.check_in(req.params.user, req.params.item, function(data){
 		res.send(data);
 	});
 });
 
-app.post("/staff/add/book", function(req,res){
+app.post("/panel/staff/add/book", function(req,res){
 	var title = req.param('title', null);
 	var location = req.param('location', null);
 	var isBorrowable = req.param('isBorrwable', null);
@@ -192,7 +197,7 @@ app.post("/staff/add/book", function(req,res){
 });
 
 
-app.post("/staff/add/video", function(req,res){
+app.post("/panel/staff/add/video", function(req,res){
 	var title = req.param('title', null);
 	var location = req.param('location', null);
 	var isBorrowable = req.param('isBorrwable', null);
@@ -206,7 +211,7 @@ app.post("/staff/add/video", function(req,res){
 	})
 });
 
-app.post("/staff/add/audio", function(req,res){
+app.post("/panel/staff/add/audio", function(req,res){
 	var title = req.param('title', null);
 	var location = req.param('location', null);
 	var isBorrowable = req.param('isBorrwable', null);
@@ -218,7 +223,7 @@ app.post("/staff/add/audio", function(req,res){
 	})
 });
 
-app.post("/staff/add/ematerial", function(req,res){
+app.post("/panel/staff/add/ematerial", function(req,res){
 	var title = req.param('title', null);
 	var location = req.param('location', null);
 	var isBorrowable = req.param('isBorrwable', null);
@@ -228,7 +233,7 @@ app.post("/staff/add/ematerial", function(req,res){
 	})
 });
 
-app.post("/staff/register", function(req,res){	
+app.post("/panel/staff/register", function(req,res){	
 	var name = req.param('name', null);
 	var email = req.param('email', null);
 	var password = req.param('password', null);
@@ -238,5 +243,27 @@ app.post("/staff/register", function(req,res){
 		res.send(result);
 	})
 });
+
+app.post('/panel/staff/extend/', function(req,res){
+	var user = req.param("user",null);
+	var item = req.param("item", null);
+	User.extend_item(user,item, function(status){
+		console.log(status);
+		res.send(status);
+	})
+});
+
+app.get("/panel/staff/checkout/charge/:user/:item", function(req,res){
+	User.borrow_charge(req.params.user, req.params.item, function(price){
+		res.send(price.toString());
+	});	
+});
+
+app.get("/panel/staff/checkout/:user/:item", function(req,res){
+	User.checkout(req.params.user, req.params.item, req.session.UserID, function(data){
+		res.send(data);
+	});
+});
+
 
 app.listen(3000);

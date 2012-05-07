@@ -32,7 +32,7 @@ $(document).ready(function(){
 	$(".item-search-result-list-element").live("click", function(){
 		var ID = $(this).data("id");
 		var category = $(this).data("category");
-		$.get("/item/" + ID + "/" + category, function(data){
+		$.get("/panel/item/" + ID + "/" + category, function(data){
 			$("#item-details-modal").html(data).modal();
 		});
 	});
@@ -42,7 +42,7 @@ $(document).ready(function(){
 		var password = $("#password").val();
 		var birthday = $("#birthday").val();
 		var formValues = "name=" + name + "&password=" + password + "&birthday=" + birthday;
-		$.post("/admin/staff/add", formValues, function(data){
+		$.post("/panel/admin/staff/add", formValues, function(data){
 			location.reload();
 		});
 		return false;;
@@ -51,7 +51,7 @@ $(document).ready(function(){
 	var currentUser = 0;
 	$("#searchUserDetailsBtn").live("click", function(){
 		var who = $("#searchUserDetailsName").val();
-		$.get("/panel/staff/checkout/" + who, function(data){
+		$.get("/panel/staff/checkin/" + who, function(data){
 			$("#panel-content").html(data);
 			currentUser = who;
 		});
@@ -69,7 +69,7 @@ $(document).ready(function(){
 	$("#checkInBtn").live("click", function(){
 		var itemID = $(this).data("itemid");
 		var userID = currentUser;
-		$.get("/staff/checkin/" + userID + "/" + itemID, function(data){
+		$.get("/panel/staff/checkin/" + userID + "/" + itemID, function(data){
 			var status = "alert-error";
 			var cssType = "";
 			if ( data == "ok"){
@@ -92,7 +92,7 @@ $(document).ready(function(){
 
 	$("#add-book-form-addBtn").live("click", function(){
 		var formValues = $("#add-book-form").serialize();
-		$.post("/staff/add/book/", formValues, function(data){
+		$.post("/panel/staff/add/book/", formValues, function(data){
 			$("#add-book-status").show(500);
 			setTimeout(function(){
 				$("#add-book-status").hide(500);
@@ -103,7 +103,7 @@ $(document).ready(function(){
 	
 	$("#add-video-form-addBtn").live("click", function(){
 		var formValues = $("#add-video-form").serialize();
-		$.post("/staff/add/video/", formValues, function(data){
+		$.post("/panel/staff/add/video/", formValues, function(data){
 			$("#add-video-status").show(500);
 			setTimeout(function(){
 				$("#add-video-status").hide(500);
@@ -114,7 +114,7 @@ $(document).ready(function(){
 
 	$("#add-audio-form-addBtn").live("click", function(){
 		var formValues = $("#add-audio-form").serialize();
-		$.post("/staff/add/audio/", formValues, function(data){
+		$.post("/panel/staff/add/audio/", formValues, function(data){
 			$("#add-audio-status").show(500);
 			setTimeout(function(){
 				$("#add-audio-status").hide(500);
@@ -125,7 +125,7 @@ $(document).ready(function(){
 
 	$("#add-ematerial-form-addBtn").live("click", function(){
 		var formValues = $("#add-ematerial-form").serialize();
-		$.post("/staff/add/ematerial/", formValues, function(data){
+		$.post("/panel/staff/add/ematerial/", formValues, function(data){
 			$("#add-ematerial-status").show(500);
 			setTimeout(function(){
 				$("#add-ematerial-status").hide(500);
@@ -136,7 +136,7 @@ $(document).ready(function(){
 
 	$("#add-user-form-submit-btn").live("click", function(){
 		var formValues = $("#add-user-form").serialize();
-		$.post('/staff/register/', formValues, function(data){
+		$.post('/panel/staff/register/', formValues, function(data){
 			$("#add-user-status").show(500);
 			setTimeout(function(){
 				$("#add-user-status").hide(500);
@@ -146,5 +146,43 @@ $(document).ready(function(){
 	});
 
 
+	$(".extendBtn").live("click", function(){
+		var btn = $(this);
+		var item = $(this).data("item");
+		var user = $(this).data("user");
+		var formValues = "item=" + item + "&user=" + user;
+		$.post("/staff/extend/", formValues, function(data){
+			if ( data == "ok"){
+				btn.text("OK");
+			} else {
+				btn.text("No extensions left");
+			}
+		});
+	});
 
+	$(".check-out").live("click", function(){
+		var item = $(this).data("item");
+		var user = $(this).data("user");
+		$("#confirm-checkout-btn").data("item", item);
+		$("#confirm-checkout-btn").data("user", user);
+		$.get("/panel/staff/checkout/charge/"  + user + "/" + item + "/", function(data){
+			var msg = "User does not have any charge to pay.";
+			if ( data != 0){
+				msg = "User has to pay " + data + " TL. Aceppt only if payment recieved.";
+			}
+			$("#check-out-message").text(msg);
+			$("#check-out-modal").modal();
+		});		
+	});
+
+	$("#confirm-checkout-btn").live("click", function(){
+		var item = $(this).data("item");
+		var user = $(this).data("user");
+		$.get("/panel/staff/checkout/"  + user + "/" + item + "/", function(data){
+			 $("#check-out-status").show(500);
+			 setTimeout(function(){
+			 	$("#check-out-status").hide(500);
+			 },4000);
+		});		
+	});	
 });
