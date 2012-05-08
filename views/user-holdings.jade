@@ -22,12 +22,10 @@ hr
 					|  Search
 			div.span6
 				h1 #{name}
-				ul
-					li Member since 2011
-					li Currently has 5 books in reserve
-					li Currently has 3 books on him
-					li Birthday #{birth}
-				a.btn.btn-info Extend Membership
+					| &nbsp;
+					a.btn.btn-info#extend-membership-btn(data-id="#{userID}")
+						i.icon.icon-upload.icon-white
+						| &nbsp; Extend Membership
 	hr
 	h3 The Items that are on user
 	table(class="table table-striped")
@@ -50,12 +48,21 @@ hr
 					- else 
 						span.label.label-important NO EXTENSIONS LEFT
 	div.modal.fade.hide(id="book-search-results")
+	div.modal.fade.hide(id="extend-membership")
+		div.modal-header
+			a.close(data-dismiss="modal") ×
+			h3 Extend Membership
+		div.modal-body#membership-cost			
+		div.modal-footer
+			div.alert.alert-success.hide#extend-membership-status Membership extended successfully
+			a(href="#",class="btn") Cancel
+			a(href="#",class="btn btn-primary",id="extend-membership-confirm-btn") Confirm
 	div.modal.fade.hide(id="check-out-modal")
 		div.modal-header
 			a.close(data-dismiss="modal") ×
 			h3 Complete check-out
 		div.modal-body#check-out-message
 		div.modal-footer
-			div.alert.alert-success.hide#check-out-status Item is checkout successfully
+			div.alert.alert-success.hide#check-out-status Item is checked out successfully
 			a(href="#",class="btn") Cancel
-			a(href="#",class="btn btn-primary",id="confirm-checkout-btn") Add
+			a(href="#",class="btn btn-primary",id="confirm-checkout-btn") Check-out

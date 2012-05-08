@@ -45,8 +45,9 @@ html
 								a(href="/logout")
 									i(class="icon-white icon-eject")
 									|  Logout
-					form(class="navbar-search pull-right",id="searchForm")
-						i(class="icon-white icon-search")
-						span &nbsp;
-						input(type="text",id="searchText",class="search-query span4",placeholder="Search An Item",style="background-color:#FFF")
+					- if (type == 'normal')
+						form(class="navbar-search pull-right",id="searchForm")
+							i(class="icon-white icon-search")
+							span &nbsp;
+							input(type="text",id="searchText",class="search-query span4",placeholder="Search An Item",style="background-color:#FFF")
 		div(class="container",id="panel-content")

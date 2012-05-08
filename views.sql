@@ -12,7 +12,6 @@ WHERE I.ItemID = B.ItemID
 AND B.ItemID = BC.ItemID
 AND B.UserID = BC.UserID
 
-
 CREATE VIEW LateCheckouts AS 
 SELECT (DATEDIFF(ValidUntil, BorrowDate) * IsPassed * value) AS Price, BC.UserID, BC.ItemID
 FROM BorrowCheck BC, UserConstraints UC
@@ -28,3 +27,7 @@ CREATE VIEW StaffStatitsics AS
 SELECT StaffID, COUNT(date) AS count, SUM(amount) AS money, DateOfBirth, U.name, U.email FROM User U, Returns R
 WHERE R.StaffID = U.UserID
 GROUP BY StaffID
+
+CREATE VIEW BorrowDetails AS
+SELECT UC.UserID, I.ItemID, I.Title, BorrowDate, ValidUntil, IsPassed, UC.Value AS MaxExtensions FROM BorrowCheck BC, Item I, UserConstraints UC
+WHERE BC.ItemID = I.ItemID AND UC.UserID = BC.UserID AND UC.name = "MaxExtensions"

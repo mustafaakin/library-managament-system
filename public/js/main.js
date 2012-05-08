@@ -32,7 +32,7 @@ $(document).ready(function(){
 	$(".item-search-result-list-element").live("click", function(){
 		var ID = $(this).data("id");
 		var category = $(this).data("category");
-		$.get("/panel/item/" + ID + "/" + category, function(data){
+		$.get("/item/" + ID + "/" + category, function(data){
 			$("#item-details-modal").html(data).modal();
 		});
 	});
@@ -151,7 +151,7 @@ $(document).ready(function(){
 		var item = $(this).data("item");
 		var user = $(this).data("user");
 		var formValues = "item=" + item + "&user=" + user;
-		$.post("/staff/extend/", formValues, function(data){
+		$.post("/panel/staff/extend/", formValues, function(data){
 			if ( data == "ok"){
 				btn.text("OK");
 			} else {
@@ -160,11 +160,12 @@ $(document).ready(function(){
 		});
 	});
 
+
+	var currentItem = 0;
+	var currentUser = 0;
 	$(".check-out").live("click", function(){
-		var item = $(this).data("item");
-		var user = $(this).data("user");
-		$("#confirm-checkout-btn").data("item", item);
-		$("#confirm-checkout-btn").data("user", user);
+		var item = currentItem = $(this).data("item");
+		var user = currentUser = $(this).data("user");
 		$.get("/panel/staff/checkout/charge/"  + user + "/" + item + "/", function(data){
 			var msg = "User does not have any charge to pay.";
 			if ( data != 0){
@@ -176,8 +177,8 @@ $(document).ready(function(){
 	});
 
 	$("#confirm-checkout-btn").live("click", function(){
-		var item = $(this).data("item");
-		var user = $(this).data("user");
+		var item = currentItem;
+		var user = currentUser;
 		$.get("/panel/staff/checkout/"  + user + "/" + item + "/", function(data){
 			 $("#check-out-status").show(500);
 			 setTimeout(function(){
@@ -185,4 +186,36 @@ $(document).ready(function(){
 			 },4000);
 		});		
 	});	
+
+	$(".extend-item").live("click", function(){
+		var btn = $(this);
+		var item = $(this).data("item");
+		var formValues = "item=" + item;
+		$.post("/panel/normal/extend/", formValues, function(data){
+			if ( data == "ok"){
+				btn.text("OK");
+			} else {
+				btn.text("No extensions left");
+			}
+		});
+	});
+
+	$("#extend-membership-btn").live("click", function(){
+		var user = $(this).data("id");
+		$("#extend-membership-confirm-btn").data("user",user);
+		$.get("/panel/staff/membershipdue/" + user, function(data){
+			$("#membership-cost").text("Membership due for user " + user + " is " + data + " TL.");
+			$("#extend-membership").modal();
+		});
+	});
+
+	$("#extend-membership-confirm-btn").live("click", function(){
+		var user = $(this).data("user");
+		$.get("/panel/staff/membershipextend/" + user, function(data){
+			$("#extend-membership-status").show(500);
+			setTimeout(function(){
+				$("#extend-membership-status").show(500);
+			},4500);			
+		});
+	});
 });

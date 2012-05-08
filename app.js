@@ -83,7 +83,13 @@ app.get('/panel/normal/home', function(req,res){
 });
 
 app.get('/panel/normal/my-books', function(req,res){
-	res.render("my-books");
+	User.user_items(req.session.UserID, function(data){
+		for ( var i = 0; i < data.length; i++){
+			data[i].BorrowDate =  moment(data[i].BorrowDate).format("DD MMMM YYYY");
+			data[i].ValidUntil =  moment(data[i].ValidUntil).format("DD MMMM YYYY");				
+		}
+		res.render("my-books", {items:data});
+	});
 });
 
 app.get('/panel/normal/reserve-room', function(req,res){
@@ -248,7 +254,6 @@ app.post('/panel/staff/extend/', function(req,res){
 	var user = req.param("user",null);
 	var item = req.param("item", null);
 	User.extend_item(user,item, function(status){
-		console.log(status);
 		res.send(status);
 	})
 });
@@ -263,6 +268,26 @@ app.get("/panel/staff/checkout/:user/:item", function(req,res){
 	User.checkout(req.params.user, req.params.item, req.session.UserID, function(data){
 		res.send(data);
 	});
+});
+
+app.get("/panel/staff/membershipdue/:user", function(req,res){
+	User.extend_membership_due(req.params.user, function(price){
+		res.send(price.toString());
+	});
+})
+
+app.get("/panel/staff/membershipextend/:user", function(req,res){
+	User.extend_mebmership(req.params.user, function(msg){
+		res.send(msg);
+	});
+});
+
+app.post('/panel/normal/extend/', function(req,res){
+	var user = req.session.UserID;
+	var item = req.param("item", null);
+	User.extend_item(user,item, function(status){
+		res.send(status);
+	})
 });
 
 

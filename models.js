@@ -137,6 +137,8 @@ module.exports.User = {
 	},
 	checkout: function(user,item, staff, callback){
 		pool.query("SELECT Price FROM LateCheckouts WHERE UserID = ? AND ItemID = ?", [user, item], function(err,rows,fields){
+			if ( err)
+				throw err;
 			var price = rows[0].Price;
 			pool.query("INSERT INTO Returns(UserID, ItemID, StaffID, date, amount) VALUES(?,?,?, CURRENT_TIMESTAMP(),?)",
 			  [user,item,staff,price], function(err,rows,fields){
@@ -145,6 +147,24 @@ module.exports.User = {
 				});
 			});
 		});		
+	}, 
+	extend_membership_due: function(user, callback){
+		pool.query("SELECT value FROM UserConstraints WHERE UserID = ? AND Name = 'MembershipDue'", [user], function(err,rows,fields){
+			callback(rows[0].value);
+		});
+	},
+	extend_mebmership: function(user, callback){
+		pool.query("SELECT UC.value AS due, UC2.value AS period FROM UserConstraints UC, UserConstraints UC2 WHERE UC.UserID = ? AND UC2.UserID = ? "
+			+ "AND UC.name = 'MembershipDue' AND UC2.name = 'MembershipPeriod'", [user,user], function(err,rows,fields){
+			var due = rows[0].due;
+			var period = rows[0].period;
+			pool.query("INSERT INTO MembershipHistory(UserID,Charge,StartDate,ExpireDate) VALUES (?,?,CURDATE(), DATE_ADD(CURDATE(), INTERVAL ? DAY))",
+			  [user,due,period], function(err,rows,fields){
+			  	if ( err)
+			  		throw err;
+			  	callback("ok");
+			});
+		});
 	}
 };
 
@@ -204,7 +224,7 @@ module.exports.Item = {
 			if ( err){
 				globalCallback(err)
 			} else {
-				pool.query("INSERT INTO Borrow(UserID, ItemID, BorrowDate, ExtensionCount, Charge) VALUES(?,?, CURDATE(),0,NULL)", 
+				pool.query("INSERT INTO Borrow(UserID, ItemID, BorrowDate, ExtensionCount) VALUES(?,?, CURDATE(),0)", 
 				  [userID, itemID], function(err,rows,fields){
 					globalCallback("ok");
 				});
