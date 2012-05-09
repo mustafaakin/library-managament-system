@@ -8,4 +8,6 @@ div.modal-header
 					td #{key}
 					td #{item}
 	div.modal-footer
+		- if ( user == "normal")
+			a(href="#",class="btn btn-info") Reserve		
 		a(href="#",class="btn",data-dismiss="modal") Close

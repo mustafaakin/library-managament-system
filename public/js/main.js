@@ -218,4 +218,24 @@ $(document).ready(function(){
 			},4500);			
 		});
 	});
+
+	$(".constraint-edit-btn").live("click", function(){
+		var id = $(this).data("id");
+		$.get("/panel/admin/constraints/" + id, function(data){
+			$("#constraint-edit").html(data).modal();
+		});
+	});
+
+	$("#confirm-constraint-edit-btn").live("click", function(){
+		var constraintType = $(this).data("id");
+		var formValues = $("#constraint-form").serialize();
+		formValues = formValues + "&constraint=" + constraintType;
+		console.log(formValues);
+		$.post("/panel/admin/constraint/", formValues, function(){
+			$("#edit-constraint-message").show(500);
+			setTimeout( function(){
+				$("#edit-constraint-message").hide(500);
+			},4000);
+		});
+	});
 });

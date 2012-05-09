@@ -10,35 +10,21 @@ html
 		link(rel='stylesheet', href='/css/bootstrap2.css')
 		title Library Management System
 	body
-		div(class='container')
+		div(class='container container-small')
 			div(class='row')
-				div(class='span8')
-					h1 Bilkent University Library Management System
-					p A Cool system which is created by us. You can;
-					ul
-						li View items
-						li Reserve items
-						li Reserve a study room
-						li See your holdings
-						li Comment on books
-				div(class='span4')
-					div.well
-						h2 Login To System
-						form(action='login', method='post')
-							fieldset
-								div(class="control-group")
-									label Email			
-									div(class="input")
-										input(type="text",name="email",placeholder="Your Username",tabindex="1",value="")		
-								div(class="control-group")
-									label Password			
-									div
-										input(type="password",name="password",placeholder="Your Password",tabindex="1",value="")		
-									button(class='btn btn-primary', type='submit') Login to System
-								div
-									a(href='#') Forgot password
+				h2 Login To Library Management System
+				form(action='login', method='post')
+					fieldset
+						div(class="control-group")
+							label Email			
+							input(class="input input-xlarge",type="text",name="email",placeholder="Your e-Mail",tabindex="1",value="")		
+						div(class="control-group")
+							label Password			
+							div
+								input(class="input input-xlarge",type="password",name="password",placeholder="Your Password",tabindex="1",value="")		
+							button(class='btn btn-primary', type='submit') Login to System
+						div
+							a(href='#') Forgot password
 			hr 
-			div(class='row')
-				div(class='span8') Mustafa Akın, Didem Demirağ, Semih Şahin, &copy; 2012
-				div(class='span4') 
-					a(href="#", rel="tooltip",data-original-title="We are students") About us
+			.span.span-important Mustafa Akın, Didem Demirağ, Semih Şahin, &copy; 2012
+				

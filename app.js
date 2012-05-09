@@ -1,6 +1,7 @@
 var express = require('express');
 var models = require('./models.js');
 var moment = require('moment');
+var async = require('async');
 var os = require("os");
 
 var User = models.User;
@@ -159,7 +160,7 @@ app.get('/items/:keyword', function(req,res){
 
 app.get('/item/:id/:category', function(req,res){
   	Item.item_details_category(req.params.id, req.params.category, function(result){
-		res.render("item-details", {details: result});
+		res.render("item-details", {details: result,user:req.session.UserType});
   	});
 });
 
@@ -291,4 +292,27 @@ app.post('/panel/normal/extend/', function(req,res){
 });
 
 
+app.get('/panel/admin/constraints/:id', function(req,res){
+	User.get_constraints(req.params.id,function(data){
+		res.render("single-constraint", {cons:data});
+	});
+});
+
+app.post("/panel/admin/constraint/", function(req,res){
+	var type = req.param("constraint",null);
+	var params = [];
+	for ( var i = 0; i < 5; i++){
+		var value = req.param("" + i, null);
+		if ( value){
+			params.push({user:i,type:type, value:value});
+		}
+	}
+	async.map(params, function(i,callback){
+		User.set_constraint(i.type, i.value, i.user, function(data){
+			callback(null,"ok");
+		})}, function(err,results){
+			res.send("ok");
+		});
+
+});
 app.listen(3000);

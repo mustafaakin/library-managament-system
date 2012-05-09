@@ -1,0 +1,15 @@
+div.modal-header
+	a.close(data-dismiss="modal") ×
+	h3 #{cons[0].explanation}
+div.modal-body
+	form.form-horizontal#constraint-form
+		fieldset
+			- each a in cons
+				.control-group
+					label.control-label(for='input01') #{a.user}
+					.controls
+						input#input01.input.input-mini(type='text',name="#{a.userType}",value="#{a.value}")
+	div.modal-footer
+		div.alert.alert-success.hide#edit-constraint-message Constraints Updated Succesfully
+		a(href="#",class="btn btn-primary", data-id="#{cons[0].type}",id="confirm-constraint-edit-btn") Save changes
+		a(href="#",class="btn",data-dismiss="modal") Close

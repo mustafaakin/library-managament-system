@@ -48,6 +48,19 @@ module.exports.User = {
 			callback(rows);
 		});
 	},
+	get_constraints: function(type,callback){
+		pool.query("SELECT * FROM UserTypeConstraints WHERE TYPE = ?", [type], function(err,rows,fields){
+			callback(rows);
+		});
+	},
+	set_constraint: function(type,value,user, callback){
+		pool.query("UPDATE Constraints SET value = ? WHERE constraintType = ? AND userType = ?",
+		  [value,type,user], function(err,rows,fields){
+		  	if ( err)
+		  		throw err;
+		  	callback("ok");
+		});
+	},
 	add_staff : function(name,password, birthday, callback){
 		pool.query("INSERT INTO User(name, password, DateOfBirth, type) VALUES(?,?,?,?)", 
 		  [name,password, birthday,2], function(err,rows, fields){
@@ -70,7 +83,7 @@ module.exports.User = {
 		});
 	}, 
 	register: function(name,email,password,birth,type,callback){
-		getConstraint("Membrows.insertIdershipDue", type, function(due){
+		getConstraint("MembrshipDue", type, function(due){
 			// date_add(curdate(),INTERVAL 35 Day)
 			pool.query("INSERT INTO User(Password,Name, Type,DateOfBirth,email) VALUES(MD5(?),?,?,?,?)",
 			 [password, name, type, birth, email], function(err,rows,fields){
@@ -169,6 +182,9 @@ module.exports.User = {
 };
 
 module.exports.Item = {
+	reserve: function(user,item,callback){
+		
+	},
 	item_search: function(keyword, callback) {
 		var SQL = "SELECT Item.ItemID, Title, 'Book' AS 'category' FROM Item, Book WHERE Item.ItemID = Book.ItemID AND title LIKE ? UNION ";
 		SQL += "SELECT Item.ItemID, Title, 'Audio' AS 'category' FROM Item, Audio WHERE Item.ItemID = Audio.ItemID AND title LIKE ? UNION ";

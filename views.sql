@@ -18,7 +18,7 @@ FROM BorrowCheck BC, UserConstraints UC
 WHERE BC.UserID = UC.UserID AND UC.name = "DelayDue"
 
 CREATE VIEW LoginCheck AS 
-SELECT MH.UserID AS UserID, MAX(ExpireDate) > CURDATE() AS IsExpired, U.email, U.Password, UT.name AS UserType
+SELECT MH.UserID AS UserID, (MAX(ExpireDate) > CURDATE() OR U.type == 1) AS IsExpired, U.email, U.Password, UT.name AS UserType
 FROM MembershipHistory MH, User U, UserTable UT
 WHERE U.UserID = MH.UserID AND UT.type = U.type
 GROUP BY MH.UserID
@@ -31,3 +31,13 @@ GROUP BY StaffID
 CREATE VIEW BorrowDetails AS
 SELECT UC.UserID, I.ItemID, I.Title, BorrowDate, ValidUntil, IsPassed, UC.Value AS MaxExtensions FROM BorrowCheck BC, Item I, UserConstraints UC
 WHERE BC.ItemID = I.ItemID AND UC.UserID = BC.UserID AND UC.name = "MaxExtensions"
+
+CREATE VIEW UserTypeConstraints AS
+SELECT CT.type , CT.name, CT.explanation, C.userType, C.value, UT.name AS user FROM Constraints C, ConstraintTable CT, UserTable UT
+WHERE C.constraintType = CT.type AND UT.type = C.userType
+
+CREATE VIEW ReserveQueue AS
+SELECT UC.UserID, ItemID, putTime, CURRENT_TIMESTAMP < DATE_ADD(putTime, INTERVAL value DAY) AS StillValid FROM UserConstraints UC, Reserve R
+WHERE UC.name ="ReservePeriod" AND R.UserID = UC.UserID AND isTaken = 0
+ORDER BY putTime ASC
+

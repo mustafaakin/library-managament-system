@@ -1,6 +1,7 @@
 legend Select a constraint type to edit constraints for each user type
-- each constraint in constraints
-  p
-      a(href="#") 
-        i.icon.icon-hand-right
-        | &nbsp; #{constraint.explanation}
+	- each constraint in constraints
+		p
+			a(href="#",class="constraint-edit-btn",data-id="#{constraint.type}") 
+				i.icon.icon-hand-right
+				|&nbsp; #{constraint.explanation}
+div.modal.hide.fade(id="constraint-edit")
