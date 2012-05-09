@@ -178,12 +178,35 @@ module.exports.User = {
 			  	callback("ok");
 			});
 		});
+	},
+	reserves: function(user, callback){
+		pool.query("SELECT I.ItemID, Title, ValidUntil FROM ReserveQueue RQ, Item I WHERE RQ.ItemID = I.ItemID AND UserID = ? AND RQ.StillValid = 1", [user], 
+		  function(err,rows,fields){
+		  	callback(rows);
+		 });
+	},
+	delete_reserve: function(user,item,callback){
+		pool.query("DELETE FROM Reserve WHERE ItemID = ? AND UserID = ? AND "
+			+ "NOW() < DATE_ADD(putTime,INTERVAL (SELECT value FROM UserConstraints UC WHERE UC.name = 'ReservePeriod' AND UC.UserID = ?) DAY)", 
+		[item,user,user], function(err,rows,fields){
+			if ( err)
+				throw err;
+			callback("ok");
+		});
 	}
 };
 
 module.exports.Item = {
 	reserve: function(user,item,callback){
-		
+		pool.query("INSERT INTO Reserve(ItemID,UserID,putTime,isTaken) VALUES(?,?,CURRENT_TIMESTAMP,0)", [item,user], function(err,rows,fields){
+			if ( err)
+				throw err;
+		  	pool.query("SELECT value FROM UserConstraints WHERE Name = 'ReservePeriod' AND UserID = ?", [user], function(err,rows,fields){
+		  		if ( err)
+		  			throw err;
+		  		callback(rows[0].value);
+		  	});
+		});
 	},
 	item_search: function(keyword, callback) {
 		var SQL = "SELECT Item.ItemID, Title, 'Book' AS 'category' FROM Item, Book WHERE Item.ItemID = Book.ItemID AND title LIKE ? UNION ";
@@ -226,20 +249,32 @@ module.exports.Item = {
 				});
 			},
 			isBorrowable: function(callback){
-				pool.query("SELECT ((SELECT count * Borrowable FROM Item WHERE ItemID = ?) > (SELECT COUNT(ItemID) From Borrow WHERE ItemID = ?)) AS IsBorrowable", 
-					[itemID, itemID], function(err,rows,fields){
-				  	if ( rows[0].IsBorrowable == 1){
-				  		callback(null,true);
-				  	} else {
-				  		callback("not-borrowable");
-				  	}
+				var SQL = "SELECT (SELECT count * Borrowable FROM Item I WHERE I.ItemID = ?) > ((SELECT COUNT(*) FROM BorrowCheck BC WHERE BC.ItemID = ?) " 
+					+ "+ (SELECT COUNT(*) FROM ReserveQueue RQ WHERE RQ.ItemID = ? AND RQ.StillValid = 1)) AS IsAnyRemaining," + 
+					"(SELECT UserID = ? FROM ReserveQueue WHERE StillValid = 1 AND ItemID = ? LIMIT 0,1) AS IsTopUserMe";
+				console.log(SQL);
+				pool.query(SQL, [itemID,itemID,itemID,userID,itemID], function(err,rows,fields){
+					if ( err)
+						throw err;
+					console.log(rows);
+					if ( rows[0].IsAnyRemaining == 1){
+						callback(null,true);
+					} else if ( rows[0].IsTopUserMe == 1) {
+						callback(null,{markTopUser:true});
+					} else {
+						callback("not-borrowable");
+					}
 				});
-			}
+			}	
 		},
 		function(err,results){
 			if ( err){
 				globalCallback(err)
 			} else {
+				console.log(results);
+				if ( results.isBorrowable[0].markTopUser){
+					// TODO: Implement Later
+				}
 				pool.query("INSERT INTO Borrow(UserID, ItemID, BorrowDate, ExtensionCount) VALUES(?,?, CURDATE(),0)", 
 				  [userID, itemID], function(err,rows,fields){
 					globalCallback("ok");

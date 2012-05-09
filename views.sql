@@ -37,7 +37,11 @@ SELECT CT.type , CT.name, CT.explanation, C.userType, C.value, UT.name AS user F
 WHERE C.constraintType = CT.type AND UT.type = C.userType
 
 CREATE VIEW ReserveQueue AS
-SELECT UC.UserID, ItemID, putTime, CURRENT_TIMESTAMP < DATE_ADD(putTime, INTERVAL value DAY) AS StillValid FROM UserConstraints UC, Reserve R
+SELECT 
+	UC.UserID, ItemID, putTime, 
+	CURRENT_TIMESTAMP < DATE_ADD(putTime, INTERVAL value DAY) AS StillValid, 
+	DATE_ADD(putTime, INTERVAL value DAY) AS ValidUntil 
+FROM UserConstraints UC, Reserve R
 WHERE UC.name ="ReservePeriod" AND R.UserID = UC.UserID AND isTaken = 0
 ORDER BY putTime ASC
 

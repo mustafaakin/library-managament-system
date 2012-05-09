@@ -238,4 +238,21 @@ $(document).ready(function(){
 			},4000);
 		});
 	});
+
+	$("#reserve-item-btn").live("click", function(){
+		var id = $(this).data("id");
+		$.get("/panel/normal/reserve/" + id, function(data){
+			$("#reserve-status").text("Item reserved. You can take it in " + data + " days.").show(500);
+			setTimeout(function(){
+				$("#reserve-status").hide(500);
+			},4000);
+		});
+	});
+
+	$(".cancel-reservation").live("click",function(){
+		var id = $(this).data("id");
+		$.get("/panel/normal/reserve/delete/" + id, function(data){
+			$("#reservation-row-" + id).hide(500);
+		})
+	});
 });

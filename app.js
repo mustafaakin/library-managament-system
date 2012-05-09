@@ -84,12 +84,29 @@ app.get('/panel/normal/home', function(req,res){
 });
 
 app.get('/panel/normal/my-books', function(req,res){
-	User.user_items(req.session.UserID, function(data){
-		for ( var i = 0; i < data.length; i++){
-			data[i].BorrowDate =  moment(data[i].BorrowDate).format("DD MMMM YYYY");
-			data[i].ValidUntil =  moment(data[i].ValidUntil).format("DD MMMM YYYY");				
+	async.parallel({
+		borrows: function(callback){
+			User.user_items(req.session.UserID, function(data){
+				for ( var i = 0; i < data.length; i++){
+					data[i].BorrowDate =  moment(data[i].BorrowDate).format("DD MMMM YYYY");
+					data[i].ValidUntil =  moment(data[i].ValidUntil).format("DD MMMM YYYY");				
+				}
+				callback(null,data);
+			});
+		},
+		reserves: function(callback){
+			User.reserves(req.session.UserID, function(data){
+				for ( var i = 0; i < data.length; i++){
+					data[i].ValidUntil =  moment(data[i].ValidUntil).format("DD MMMM YYYY");				
+				}				
+				callback(null,data)
+			});
 		}
-		res.render("my-books", {items:data});
+	}, function(err,results){
+		res.render("my-books", {
+			borrows:results.borrows,  
+			reserves:results.reserves,
+		});
 	});
 });
 
@@ -313,6 +330,18 @@ app.post("/panel/admin/constraint/", function(req,res){
 		})}, function(err,results){
 			res.send("ok");
 		});
-
 });
+
+app.get("/panel/normal/reserve/:item", function(req,res){
+	Item.reserve(req.session.UserID, req.params.item, function(count){
+		res.send(count.toString()); // Integer types must be converted to string, othwerise integers are interpereded as HTTP status codes
+	});
+});
+
+app.get("/panel/normal/reserve/delete/:item", function(req,res){
+	User.delete_reserve(req.session.UserID, req.params.item, function(data){
+		res.send("ok");
+	})
+});
+
 app.listen(3000);

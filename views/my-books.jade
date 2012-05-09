@@ -1,3 +1,4 @@
+h1 Borrows
 table(class="table table-striped")
 	thead
 		tr
@@ -7,7 +8,7 @@ table(class="table table-striped")
 			th Return Date
 			th
 	tbody
-		- each Item in items
+		- each Item in borrows
 			tr
 				td #{Item.ItemID}
 				td #{Item.Title}
@@ -20,3 +21,19 @@ table(class="table table-striped")
 						span.label.label-warning Maximum extensions breached
 					- else
 						a(class="btn extend-item", data-item="#{Item.ItemID}") Extend
+h1	Reserves
+table(class="table table-striped")
+	thead
+		tr
+			th # Book ID
+			th Book Name
+			th Reservation Valid Until
+			th
+	tbody
+		- each Item in reserves
+			tr(id="reservation-row-#{Item.ItemID}")
+				td #{Item.ItemID}
+				td #{Item.Title}
+				td #{Item.ValidUntil}
+				td
+					a(class="btn btn-danger cancel-reservation", data-id="#{Item.ItemID}") Cancel reservation

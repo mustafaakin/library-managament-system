@@ -1,13 +1,14 @@
-div.modal-header
+.modal-header
 		a.close(data-dismiss="modal") ×
 		h3 Item Details
-	div.modal-body
+	.modal-body
 		table(class="table table-bordered")					
 			- each item,key in details 				
 				tr			
 					td #{key}
 					td #{item}
-	div.modal-footer
-		- if ( user == "normal")
-			a(href="#",class="btn btn-info") Reserve		
+	.modal-footer
+		- if ( user == "normal" && details.Borrowable == 1)
+			.alert.alert-success.hide#reserve-status 
+			a(href="#",class="btn btn-info",data-id="#{details.ItemID}",id="reserve-item-btn") Reserve		
 		a(href="#",class="btn",data-dismiss="modal") Close
