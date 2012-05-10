@@ -41,7 +41,8 @@ $(document).ready(function(){
 		var name = $("#name").val();
 		var password = $("#password").val();
 		var birthday = $("#birthday").val();
-		var formValues = "name=" + name + "&password=" + password + "&birthday=" + birthday;
+		var email = $("#email").val();
+		var formValues = "name=" + name + "&password=" + password + "&birthday=" + birthday + "&email=" + email;
 		$.post("/panel/admin/staff/add", formValues, function(data){
 			location.reload();
 		});
@@ -254,5 +255,156 @@ $(document).ready(function(){
 		$.get("/panel/normal/reserve/delete/" + id, function(data){
 			$("#reservation-row-" + id).hide(500);
 		})
+	});
+
+	$(".deactivate-staff").live("click", function(){
+		var id = $(this).data("id");
+		var a = $(this);
+		$.get("/panel/admin/delete-staff/" + id, function(data){
+			a.html("Bye-bye");
+			setTimeout(function(){
+				a.hide(500);
+			},1500);
+		});
+	});
+
+	$(".comment-view-btn").live("click", function(){
+		var id = $(this).data("id");
+		$.get("/panel/normal/comments/" + id, function(data){
+			$("#item-comments-modal").html(data).modal();
+		});
+	});
+
+
+	$(".rating").live("hover", function(){
+		var no = parseInt($(this).data("no"));
+		for ( var i= 0; i < no; i++){
+			$(".rating:eq(" + i + ")").removeClass("icon-star-empty").addClass("icon-star");			
+		}
+		for ( var i = no; i < 5; i++){
+			$(".rating:eq(" + i + ")").removeClass("icon-star").addClass("icon-star-empty");			
+		}		
+	});
+
+	$("#comment-add-btn").live("click", function(){
+		var i;
+		for ( i = 0; i < 5; i++){
+			var a = $(".rating:eq(" + i + ")").hasClass("icon-star-empty");
+			if ( a) break;
+		}
+		var msg = $("#comment-content").val();
+		var item = $(this).data("id");
+		var formValues = "rating=" + (i+1) + "&msg=" + msg + "&item=" + item;
+		$.post("/panel/normal/post-comment/",formValues, function(data){
+			$.get("/panel/normal/comments/" + item, function(data){
+				$("#item-comments-modal").html(data).modal();
+			});
+		});
+	});
+
+	// Statistics
+	$("#stat-active").live("click", function(){
+		$.get("/panel/admin/stats/staff/", function(stats){
+			values = [];
+			for ( var i = 0; i < stats.length; i++){
+				values.push([stats[i].name, stats[i].count]);
+			}
+			chart = new Highcharts.Chart({
+				chart: {
+					renderTo: 'graphArea',
+					plotBackgroundColor: null,
+					plotBorderWidth: null,
+					plotShadow: false
+				},
+				title: {
+					text: 'Item checkout ratios of  staffs'
+				},
+				tooltip: {
+					formatter: function() {
+						return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
+					}
+				},
+				plotOptions: {
+					pie: {
+						allowPointSelect: true,
+						cursor: 'pointer',
+						dataLabels: {
+							enabled: true,
+							color: '#000000',
+							connectorColor: '#000000',
+							formatter: function() {
+								return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
+							}
+						}
+					}
+				},
+				series: [{
+					type: 'pie',
+					name: 'Staffs',
+					data: values
+				}]
+			});
+
+		});
+	});
+
+	$("#stat-age").live("click", function(){
+		$.get("/panel/admin/statistics/age", function(data){
+			var values = [];
+			var ages = [];
+			for ( var i = 0; i < data.length; i++){
+				var k = data[i];
+				values.push(k.Total);
+				console.log(k);
+				var lower = k.YearSpan * parseInt(k.YearRange);
+				var upper = k.YearSpan * (parseInt(k.YearRange) + 1);
+				ages.push(lower + "-" + upper);
+			}
+			console.log(ages);
+			console.log(values);
+			chart = new Highcharts.Chart({
+				chart: {
+					renderTo: 'graphArea',
+					type: 'column',
+				},
+				title: {
+					text: 'Library member\'s age distiribution'
+				},
+				xAxis: {
+					categories: ages,
+					labels: {
+						rotation: -45,
+						align: 'right',
+						style: {
+							font: 'normal 13px Verdana, sans-serif'
+						}
+					}
+				},
+				yAxis: {
+					title: {
+						text: 'Age period'
+					}
+				},
+				legend: {
+					enabled: false
+				},
+				series: [{
+					name: 'People in this age period',
+					data: values,
+					dataLabels: {
+						enabled: true,
+						rotation: -90,
+						color: '#FFFFFF',
+						align: 'right',
+						formatter: function() {
+							return this.y;
+						},
+						style: {
+							font: 'normal 13px Verdana, sans-serif'
+						}
+					}
+				}]
+			});
+		});
 	});
 });

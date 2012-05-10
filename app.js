@@ -117,7 +117,7 @@ app.get('/panel/normal/reserve-room', function(req,res){
 
 // Admin Menus
 app.get('/panel/admin/manage-staff', function(req,res){
-	User.getStaffStatistics(function(result){
+	User.get_staff(function(result){
 		res.render("manage-staff", {users:result});
 	});
 });
@@ -125,6 +125,13 @@ app.get('/panel/admin/manage-staff', function(req,res){
 app.get('/panel/admin/edit-constraints', function(req,res){
 	User.get_all_constraints(function(rows){
 		res.render("edit-constraints", {constraints:rows});
+	});
+});
+
+app.get('/panel/admin/statistics', function(req,res){
+	User.stats.numbers(function(data){
+		console.log(data);
+		res.render("statistics", {numbers:data});
 	});
 });
 
@@ -175,6 +182,19 @@ app.get('/items/:keyword', function(req,res){
 	});	
 });
 
+app.get('/panel/normal/comments/:id', function(req,res){
+	Item.comments(req.params.id, function(data){
+		for ( var i = 0; i < data.length; i++){
+			data[i].date =  moment(data[i].date).format("DD MMMM YYYY");
+		}
+		res.render("comments", {
+			comments:data, 
+			user: req.session.UserID,
+			item: req.params.id
+		});
+	});
+});
+
 app.get('/item/:id/:category', function(req,res){
   	Item.item_details_category(req.params.id, req.params.category, function(result){
 		res.render("item-details", {details: result,user:req.session.UserType});
@@ -193,9 +213,11 @@ app.get('/item/:id', function(req,res){
 app.post("/panel/admin/staff/add", function(req,res) {
 	var name = req.param('name',null);
 	var password = req.param('password',null);
-	var birthday = req.param('birthday',null);
-	User.add_staff(name, password, birthday, function(data){
-		res.send(data);
+	var birth = req.param('birthday',null);
+	var email = req.param('email',null);
+	var type = 2;
+	User.register(name,email,password,birth,type, function(result){
+		res.send(result);
 	})
 });
 
@@ -214,8 +236,7 @@ app.post("/panel/staff/add/book", function(req,res){
 	var author = req.param('author', null);
 	var publisher = req.param('publisher', null);
 	var year = req.param('year', null);
-	var category = req.param('category', null);
-	Item.addBook(title, location, isBorrowable, count, ISBN, author, publisher, year, category, function(result){
+	Item.addBook(title, location, isBorrowable, count, ISBN, author, publisher, year, function(result){
 		res.send(result);
 	})
 });
@@ -263,9 +284,13 @@ app.post("/panel/staff/register", function(req,res){
 	var password = req.param('password', null);
 	var birth = req.param('birth', null);
 	var type = req.param('type', null);
-	User.register(name,email,password,birth,type, function(result){
-		res.send(result);
-	})
+	if ( type == "2" || type == "1"){ // Staff cannot add admin or staff
+		res.send(401);
+	} else {
+		User.register(name,email,password,birth,type, function(result){
+			res.send(result);
+		});
+	}
 });
 
 app.post('/panel/staff/extend/', function(req,res){
@@ -340,6 +365,34 @@ app.get("/panel/normal/reserve/:item", function(req,res){
 
 app.get("/panel/normal/reserve/delete/:item", function(req,res){
 	User.delete_reserve(req.session.UserID, req.params.item, function(data){
+		res.send("ok");
+	})
+});
+
+app.get("/panel/admin/statistics/age", function(req,res){
+	User.stats.members_by_year(function(data){
+		res.send(data);
+	});
+});
+
+app.get("/panel/admin/stats/staff", function(req,res){
+	User.getStaffStatistics(function(result){
+		res.send(result);
+	});
+});
+
+app.get("/panel/admin/delete-staff/:id", function(req,res){
+	User.deactivate_staff(req.params.id, function(data){
+		res.send("ok");
+	})
+});
+
+app.post("/panel/normal/post-comment/", function(req,res){
+	var user = req.session.UserID;
+	var item = req.param("item", null);
+	var rating = req.param("rating",null);
+	var msg = req.param("msg",null); 
+	Item.add_comment(user,item,msg,rating,function(data){
 		res.send("ok");
 	})
 });

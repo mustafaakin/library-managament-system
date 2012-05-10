@@ -4,10 +4,16 @@ table(class="table table-striped")
 		th Item ID
 		th Title
 		th Category
+		th 
 	- each item in items 
 		tr
 			td #{item.ItemID}
 			td 
 				a(href="#",class="item-search-result-list-element",data-id="#{item.ItemID}",data-category='#{item.category}') #{item.Title}
 			td #{item.category}			
+			td 
+				a.btn.btn-mini.comment-view-btn(data-id="#{item.ItemID}")
+					i.icon.icon-comment
+					| &nbsp; Comments
 div.modal.fade.hide(id="item-details-modal")
+div.modal.fade.hide(id="item-comments-modal")

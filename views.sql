@@ -18,7 +18,7 @@ FROM BorrowCheck BC, UserConstraints UC
 WHERE BC.UserID = UC.UserID AND UC.name = "DelayDue"
 
 CREATE VIEW LoginCheck AS 
-SELECT MH.UserID AS UserID, (MAX(ExpireDate) > CURDATE() OR U.type == 1) AS IsExpired, U.email, U.Password, UT.name AS UserType
+SELECT U.name AS Username, MH.UserID AS UserID, (MAX(ExpireDate) > CURDATE() OR U.type == 1) AS IsExpired, U.email, U.Password, UT.name AS UserType
 FROM MembershipHistory MH, User U, UserTable UT
 WHERE U.UserID = MH.UserID AND UT.type = U.type
 GROUP BY MH.UserID

@@ -6,6 +6,7 @@ html
 		script(src='/js/bootstrap.js')
 		script(src='/js/bootstrap-tooltip.js')
 		script(src='/js/main.js', lang='text/javascript')
+		script(src='/js/highcharts.js', lang='text/javascript')
 		link(rel='stylesheet', href='/css/main.css')
 		link(rel='stylesheet', href='/css/bootstrap2.css')
 		title Library Management System
@@ -30,6 +31,7 @@ html
 							- normal.push({link: 'normal/reserve-room', icon: 'headphones', title:'Reserve a Room'});														
 							- admin.push({link: 'admin/manage-staff', icon:'user', title:'Manage Staff'});
 							- admin.push({link: 'admin/edit-constraints', icon:'cog', title:'Edit Constraints'});
+							- admin.push({link: 'admin/statistics', icon:'info-sign', title:'Statistics'});							
 							- staff.push({link: 'staff/checkin', icon:'book', title:'Edit User Holdings'});														
 							- staff.push({link: 'staff/addItem', icon:'book', title:'Add New Item'});																					
 							- staff.push({link: 'staff/manage-users', icon:'user', title:'Add New User'});							

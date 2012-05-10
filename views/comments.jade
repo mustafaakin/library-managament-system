@@ -1,0 +1,45 @@
+div.modal-header
+	a.close(data-dismiss="modal") ×
+	h3 Leave a comment to this item
+div.modal-body
+	- var isFoundMe = false;
+	- var isFoundAny = false;
+	- if (comments.length > 0)
+		table.table.table-striped
+			tr
+				td Date 
+				td Comment 
+				td User
+				td Rating
+			- each c in comments
+				- if ( c.userID === user){
+				-		isFoundMe = true;
+				- }
+				tr
+					td #{c.date} 
+					td #{c.message}
+					td #{c.name}
+					td
+						- for ( var i = 0; i < c.rating; i++){
+							i.icon.icon-star
+						- }
+			br
+	- else 
+		p There is no comment yet
+	- if ( !isFoundMe)	
+		hr
+		.row-fluid
+			.well
+				p You can right about your thoughts, too! They are valuable to other members as well.
+				textarea.span6#comment-content
+				.hide.alert.alert-success#comment-status Your comment added succesfully.
+				br
+				span.label.label-info Please rate the item.
+					| &nbsp; &nbsp; 
+					i.icon.icon-white.icon-star-empty.rating(data-no="1")
+					i.icon.icon-white.icon-star-empty.rating(data-no="2")
+					i.icon.icon-white.icon-star-empty.rating(data-no="3")
+					i.icon.icon-white.icon-star-empty.rating(data-no="4")
+					i.icon.icon-white.icon-star-empty.rating(data-no="5")
+				br				
+				a.btn.btn-primary.btn-large#comment-add-btn(data-id="#{item}") Submit

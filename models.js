@@ -64,11 +64,13 @@ module.exports.User = {
 	add_staff : function(name,password, birthday, callback){
 		pool.query("INSERT INTO User(name, password, DateOfBirth, type) VALUES(?,?,?,?)", 
 		  [name,password, birthday,2], function(err,rows, fields){
+		  	if ( err)
+		  		throw err;
 			callback(rows);
 		});
 	},
-	getStaffStatistics : function(callback){
-		pool.query("SELECT * FROM StaffStatistics", function(err,rows,fields){
+	get_staff : function(callback){
+		pool.query("SELECT UserID, email, Username FROM LoginCheck WHERE IsExpired = 1 AND UserType = 'staff'", function(err,rows,fields){
 			callback(rows);
 		});
 	},
@@ -83,17 +85,20 @@ module.exports.User = {
 		});
 	}, 
 	register: function(name,email,password,birth,type,callback){
-		getConstraint("MembrshipDue", type, function(due){
-			// date_add(curdate(),INTERVAL 35 Day)
+		getConstraint("MembershipDue", type, function(due){
 			pool.query("INSERT INTO User(Password,Name, Type,DateOfBirth,email) VALUES(MD5(?),?,?,?,?)",
 			 [password, name, type, birth, email], function(err,rows,fields){
-				var id = rows.insertId;
-				getConstraint("MembershipPeriod", type, function(period){
-					pool.query("INSERT INTO MembershipHistory(UserId, Charge, StartDate, ExpireDate) VALUES(?,?, CURDATE()," +
-					  " DATE_ADD(CURDATE(), INTERVAL ? DAY))", [id, due.value, period.value], function(err,rows,fields){
-						callback("ok");
+			 	if ( err){
+			 		callback("email");
+			 	} else {
+					var id = rows.insertId;
+					getConstraint("MembershipPeriod", type, function(period){
+						pool.query("INSERT INTO MembershipHistory(UserId, Charge, StartDate, ExpireDate) VALUES(?,?, CURDATE()," +
+						  " DATE_ADD(CURDATE(), INTERVAL ? DAY))", [id, due.value, period.value], function(err,rows,fields){
+							callback("ok");
+						});
 					});
-				});
+				}
 			});
 		});
 	},
@@ -193,10 +198,73 @@ module.exports.User = {
 				throw err;
 			callback("ok");
 		});
+	},
+	stats: {
+		members_by_year: function(callback){
+			var yearSpan = 10;				
+			pool.query("SELECT ? AS YearSpan, COUNT(*) AS Total,ROUND ( DATEDIFF(CURDATE(),DateOfBirth) / 365 / ?) AS YearRange FROM User GROUP BY YearRange", 
+			[yearSpan, yearSpan], function(err,rows,fields){
+				if ( err)
+					throw err;
+				callback(rows);
+			});
+		},
+		numbers: function(globalCallback){
+			async.parallel({
+				age: function(callback){
+					pool.query("SELECT MAX(ROUND ( DATEDIFF(CURDATE(),DateOfBirth) / 365)) AS Oldest," 
+					  + "MIN(ROUND ( DATEDIFF(CURDATE(),DateOfBirth) / 365)) As Youngest,"
+					  + "AVG(ROUND ( DATEDIFF(CURDATE(),DateOfBirth) / 365)) As Average,"
+					  + "COUNT(*) AS Total FROM User", function(err,rows,fields){
+					  	if ( err)
+					  		throw err;
+						callback(null,rows[0]);
+					});
+				},
+				item: function(callback){
+					pool.query("SELECT (SELECT COUNT(*) FROM Borrow) AS CurrentlyOut, (SELECT COUNT(*) FROM Returns) AS Borrows,(SELECT COUNT(*) FROM Reserve) AS Reserves",
+					  function(err,rows,fields){
+					  	if ( err)
+					  		throw err;
+					  	callback(null,rows[0]);
+					});
+				}
+			},
+			function(err,results){
+				globalCallback(results);
+			});
+		}
+	},
+	deactivate_staff: function(staff,callback){
+		pool.query("UPDATE MembershipHistory SET ExpireDate = DATE_SUB(CURDATE(),INTERVAL 1 DAY) WHERE UserID = ?", [staff],
+		  function(err,rows,fields){
+		  	if ( err)
+		  		throw err;
+		  	callback("ok");
+		});
+	},
+	getStaffStatistics: function(callback){
+		pool.query("SELECT * FROM StaffStatistics", function(err,rows,fields){
+			callback(rows);
+		});
 	}
 };
 
 module.exports.Item = {
+	comments: function(item, callback){
+		pool.query("SELECT U.name, U.userID, message,date,rating FROM CommentAndRate C, User U, Item I" + 
+			" WHERE U.UserID = C.UserID AND I.ItemID = C.ItemID AND I.itemID = ?", [item], function(err,rows,fields){
+				if ( err)
+					throw err;
+				callback(rows);
+		});
+	},
+	add_comment: function(user,item,msg,rating,callback){
+		pool.query("INSERT INTO CommentAndRate(userID, itemID, message, rating, date) VALUES(?,?,?,?, CURDATE())", 
+		  [user,item,msg,rating], function(err,rows,fields){
+		  	callback("ok");
+		});
+	},
 	reserve: function(user,item,callback){
 		pool.query("INSERT INTO Reserve(ItemID,UserID,putTime,isTaken) VALUES(?,?,CURRENT_TIMESTAMP,0)", [item,user], function(err,rows,fields){
 			if ( err)
@@ -282,12 +350,12 @@ module.exports.Item = {
 			}
 		});		
 	},
-	addBook : function(title, location, isBorrowable, count, ISBN, author, publisher, year, category, callback){
+	addBook : function(title, location, isBorrowable, count, ISBN, author, publisher, year, callback){
 		isBorrowable = isBorrowable ? 0 : 1; // converting it from null to 1 or 0 for MySQL
 		pool.query("INSERT INTO Item(Borrowable,Location,Title,Count) VALUES (?,?,?,?)", [isBorrowable, location, title,count], function(err,rows, fields){
 			var id = rows.insertId;
-			pool.query("INSERT INTO Book(ItemID,ISBN,Author,Publisher,PublicationYear,CategoryID) VALUES(?,?,?,?,?,?)", 
-			  [id, ISBN, author, publisher, year, category], function(err,rows,fields){
+			pool.query("INSERT INTO Book(ItemID,ISBN,Author,Publisher,PublicationYear) VALUES(?,?,?,?,?)", 
+			  [id, ISBN, author, publisher, year], function(err,rows,fields){
 			  	if ( err)
 			  		throw err;
 			  	callback("ok");
