@@ -5,6 +5,7 @@ var pool = new MySQLPool({
 	password: '123',
 	database: 'library'
 });
+
 var async = require("async");
 
 // Helper function
@@ -18,6 +19,14 @@ function getConstraint(name, userType, callback){
 		else 
 			callback(null);
 	});
+}
+
+module.exports.Room = {
+	today: function(callback){
+		pool.query("SELECT RoomName, U.UserID, Name, StartTime, Duration, DATE_ADD(StartTime, INTERVAL Duration MINUTE) AS ValidUntil FROM RoomReservation RR, User U WHERE U.UserID = RR.UserID AND StartTime > NOW() AND StartTime < DATE_ADD(CURDATE(), INTERVAL 1 DAY) ORDER BY StartTime", function(err,rows,fields){
+			callback(rows);
+		});
+	}
 }
 
 module.exports.User = {
@@ -228,12 +237,19 @@ module.exports.User = {
 					  		throw err;
 					  	callback(null,rows[0]);
 					});
+				},
+				category: function(callback){
+					pool.query("SELECT (SELECT COUNT(*) FROM Book B) AS Book, (SELECT COUNT(*) FROM Audio) AS Audio, (SELECT COUNT(*) FROM Video) AS Video,	(SELECT COUNT(*) FROM EMaterial) AS EMaterial", function(err,rows,fields){
+						if ( err)
+							throw err;
+						callback(null,rows[0]);
+					})
 				}
 			},
 			function(err,results){
 				globalCallback(results);
 			});
-		}
+		},
 	},
 	deactivate_staff: function(staff,callback){
 		pool.query("UPDATE MembershipHistory SET ExpireDate = DATE_SUB(CURDATE(),INTERVAL 1 DAY) WHERE UserID = ?", [staff],
@@ -267,11 +283,7 @@ module.exports.Item = {
 	},
 	reserve: function(user,item,callback){
 		pool.query("INSERT INTO Reserve(ItemID,UserID,putTime,isTaken) VALUES(?,?,CURRENT_TIMESTAMP,0)", [item,user], function(err,rows,fields){
-			if ( err)
-				throw err;
 		  	pool.query("SELECT value FROM UserConstraints WHERE Name = 'ReservePeriod' AND UserID = ?", [user], function(err,rows,fields){
-		  		if ( err)
-		  			throw err;
 		  		callback(rows[0].value);
 		  	});
 		});

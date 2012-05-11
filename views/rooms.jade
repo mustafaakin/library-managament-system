@@ -1,0 +1,13 @@
+h2 Today's Room Reservations
+table.table.striped
+	tr
+		th Room Type
+		th User Name
+		th Start Time
+		th End Time
+	- each room in rooms 
+		tr
+			td #{room.RoomName}
+			td #{room.Name}
+			td #{room.StartTime}
+			td #{room.ValidUntil}

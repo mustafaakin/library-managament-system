@@ -6,6 +6,7 @@ var os = require("os");
 
 var User = models.User;
 var Item = models.Item;
+var Room = models.Room;
 
 var app = express.createServer();
  
@@ -130,7 +131,6 @@ app.get('/panel/admin/edit-constraints', function(req,res){
 
 app.get('/panel/admin/statistics', function(req,res){
 	User.stats.numbers(function(data){
-		console.log(data);
 		res.render("statistics", {numbers:data});
 	});
 });
@@ -387,7 +387,7 @@ app.get("/panel/admin/delete-staff/:id", function(req,res){
 	})
 });
 
-app.post("/panel/normal/post-comment/", function(req,res){
+app.post("/panel/normal/post-comment", function(req,res){
 	var user = req.session.UserID;
 	var item = req.param("item", null);
 	var rating = req.param("rating",null);
@@ -395,6 +395,16 @@ app.post("/panel/normal/post-comment/", function(req,res){
 	Item.add_comment(user,item,msg,rating,function(data){
 		res.send("ok");
 	})
+});
+
+app.get("/panel/staff/rooms", function(req,res){
+	Room.today(function(data){
+		for ( var i = 0; i < data.length; i++){
+			data[i].StartTime =  moment(data[i].StartTime).format("HH:mm");
+			data[i].ValidUntil =  moment(data[i].ValidUntil).format("HH:mm");			
+		}
+		res.render("rooms",{rooms:data});
+	});
 });
 
 app.listen(3000);
