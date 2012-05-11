@@ -26,6 +26,46 @@ module.exports.Room = {
 		pool.query("SELECT RoomName, U.UserID, Name, StartTime, Duration, DATE_ADD(StartTime, INTERVAL Duration MINUTE) AS ValidUntil FROM RoomReservation RR, User U WHERE U.UserID = RR.UserID AND StartTime > NOW() AND StartTime < DATE_ADD(CURDATE(), INTERVAL 1 DAY) ORDER BY StartTime", function(err,rows,fields){
 			callback(rows);
 		});
+	},
+	availability: function(room,user,start,duration,globalCallback){
+		async.parallel( {
+			place: function(callback){
+				pool.query("SELECT (SELECT count FROM Room R WHERE R.RoomName = ?) > (SELECT COUNT(*) FROM RoomReservation RR WHERE StartTime > ? AND StartTime < DATE_ADD(?,INTERVAL ? MINUTE) ) AS IsAvailable", [room,start,start,duration], function(err,rows,fields){
+					if ( err)
+						throw err;
+					if ( rows[0].IsAvailable == 1)
+						callback(null,true);
+					else
+						callback("not-available");
+				});
+			}, 
+		 	limit: function(callback){
+		 		pool.query("SELECT value < ? AS NOTOK FROM UserConstraints WHERE name = 'MaxRoomDuration' AND UserID = ?", [duration,user],
+		 		  function(err,rows,fields){
+		 		  	if ( rows[0].NOTOK == 0){
+		 		  		callback(null,true);
+		 		  	} else {
+		 		  		callback("limit");
+		 		  	}
+			 	});
+		 	}
+		}, function(err,results){
+			if ( err){
+				globalCallback(err);
+			} else {
+				console.log(start);
+				pool.query("INSERT INTO RoomReservation VALUES(?,?,?,?)", [room,user,start,duration], function(err,rows,fields){
+					if ( err)
+						throw err;
+					globalCallback("ok");
+				});
+			}
+		});
+	},
+	types: function(callback){
+		pool.query("SELECT * FROM Room", function(err,rows,fields){
+			callback(rows);
+		});
 	}
 }
 

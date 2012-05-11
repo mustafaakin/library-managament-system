@@ -2,18 +2,18 @@ form.form-horizontal
     fieldset
         legend Reserve a Room
         .control-group
-          label.control-label(for='input01') Date
+          label.control-label(for='input01') Date and Duration
           .controls
-            input#input01.input.span2(type='date', placeholder="21/12/2012")
-            input#input02.input.span1(type='date', placeholder="15:30")
+            input#start-date.input.span2(type='date', placeholder="2012-12-21",value="2012-12-21")
+            input#start-time.input.span1(type='date', placeholder="15:30",value="15:30")
             | -
-            input#input03.input.span1(type='date', placeholder="17:30")            
+            input#duration.input.span2(type='date', placeholder="120 (in minutes)",value="120")            
         .control-group
           label.control-label(for='select01') Choose a Room Type
           .controls
-            select#select01
-              option Movie Room
-              option Study Room
+            select#room-type.input.input-xlarge
+              - each room in types
+                option(value="#{room.RoomName}") #{room.Description} (#{room.count})
         .control-group
           label.control-label(for='optionsCheckbox') Agreement
           .controls
@@ -21,4 +21,7 @@ form.form-horizontal
               input#optionsCheckbox(type='checkbox', value='option1')
               | I acknowledge that I will use room for it's purpose, nothing else.
         .form-actions
-          button.btn.btn-primary(type='submit') Reserve Room
+          .row
+            .span6
+              .alert.alert-info.hide#reserve-status
+          button.btn.btn-primary#reserve-room-button Reserve Room

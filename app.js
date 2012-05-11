@@ -54,14 +54,14 @@ app.get('/wrong-login', function(req,res){
 
 app.get('/panel/:type/:menu?/:opts1?/:opts2?', function(req,res,next){
 	if ( req.params.type != req.session.UserType){
-		res.send(401);
+		res.redirect("401");
 	} else if ( req.params.menu){
 		next();
 	} else {
 		if ( ['admin', 'staff', 'normal'].indexOf(req.params.type) != -1){					
 			res.render("panel", {type:req.params.type});
 		} else {
-			res.send(404);
+			res.redirect("404");
 		}
 	}
 });
@@ -112,7 +112,9 @@ app.get('/panel/normal/my-books', function(req,res){
 });
 
 app.get('/panel/normal/reserve-room', function(req,res){
-	res.render("reserve-room");
+	Room.types(function(data){
+		res.render("reserve-room", {types:data});
+	});
 });
 
 
@@ -405,6 +407,28 @@ app.get("/panel/staff/rooms", function(req,res){
 		}
 		res.render("rooms",{rooms:data});
 	});
+});
+
+app.post("/panel/normal/reserve-room-action", function(req,res){
+	var user = req.session.UserID;
+	var room = req.param("type");
+	var start = req.param("time");
+	var duration = req.param("duration");	
+	Room.availability(room,user,start,duration,function(data){
+		res.send(data);
+	})
+});
+
+app.get("/404", function(req,res){
+	res.render("404");
+});
+
+app.get("/401", function(req,res){
+	res.render("404");
+});
+
+app.get("*", function(req,res){
+	res.redirect("/404");
 });
 
 app.listen(3000);

@@ -302,6 +302,25 @@ $(document).ready(function(){
 		});
 	});
 
+	$("#reserve-room-button").live("click", function(){
+		var time = $("#start-date").val() + " " + $("#start-time").val() + ":00";
+		var duration = $("#duration").val();
+		var room = $("#room-type").val();
+		var formValues = "type=" + room + "&time=" + time + "&duration=" + duration;
+		$.post("/panel/normal/reserve-room-action", formValues, function(data){
+			var t = "";
+			if ( data == "ok"){
+				t = "Room succesfully reserved";
+			} else if ( data == "limit") {
+				t = "You are wanting too much time";
+			} else {
+				t = "Sorry, room is full";
+			}
+			$("#reserve-status").text(t).show(500);
+		});
+		return false;
+	});
+
 	// Statistics
 	$("#stat-active").live("click", function(){
 		$.get("/panel/admin/stats/staff/", function(stats){
