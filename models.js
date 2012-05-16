@@ -372,11 +372,9 @@ module.exports.Item = {
 				var SQL = "SELECT (SELECT count * Borrowable FROM Item I WHERE I.ItemID = ?) > ((SELECT COUNT(*) FROM BorrowCheck BC WHERE BC.ItemID = ?) " 
 					+ "+ (SELECT COUNT(*) FROM ReserveQueue RQ WHERE RQ.ItemID = ? AND RQ.StillValid = 1)) AS IsAnyRemaining," + 
 					"(SELECT UserID = ? FROM ReserveQueue WHERE StillValid = 1 AND ItemID = ? LIMIT 0,1) AS IsTopUserMe";
-				console.log(SQL);
 				pool.query(SQL, [itemID,itemID,itemID,userID,itemID], function(err,rows,fields){
 					if ( err)
 						throw err;
-					console.log(rows);
 					if ( rows[0].IsAnyRemaining == 1){
 						callback(null,true);
 					} else if ( rows[0].IsTopUserMe == 1) {
@@ -391,8 +389,7 @@ module.exports.Item = {
 			if ( err){
 				globalCallback(err)
 			} else {
-				console.log(results);
-				if ( results.isBorrowable[0].markTopUser){
+				if ( results.isBorrowable.markTopUser){
 					// TODO: Implement Later
 				}
 				pool.query("INSERT INTO Borrow(UserID, ItemID, BorrowDate, ExtensionCount) VALUES(?,?, CURDATE(),0)", 
